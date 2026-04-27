@@ -391,14 +391,26 @@
     .wr-info { display:none; }
     .wr-stats { gap:14px; }
 
-    /* Picks table - hide less critical columns */
-    .picks-table th:nth-child(3), .picks-table td:nth-child(3),
-    .picks-table th:nth-child(4), .picks-table td:nth-child(4) { display:none; }
-    .picks-table th, .picks-table td { padding:10px 10px; font-size:12px; }
+    /* Picks table — horizontal scroll so ALL content shows, no columns hidden */
+    .picks-table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    .picks-table { min-width:520px; }
+    .picks-table th, .picks-table td { padding:10px 10px; font-size:12px; white-space:nowrap; }
     .ticker-cell { font-size:12px; }
+    .section-title { font-size:18px; }
+    .section-header { flex-wrap:wrap; gap:8px; }
+
+    /* Previous picks label */
+    .picks-section-label { font-size:13px; padding:7px 12px; }
+
+    /* Win rate card full width */
+    .win-card { flex-wrap:wrap; }
+    .wr-circle { flex-shrink:0; }
 
     /* Chat */
     .chat-card { height:420px; }
+
+    /* Info cards */
+    .info-card { padding:16px; }
 
     /* Consent modal */
     .consent-box { padding:24px 18px 20px; margin:12px; }
@@ -406,8 +418,20 @@
     /* Toast */
     .toast { right:12px; bottom:16px; left:12px; font-size:12px; }
 
-    /* Disclaimer banner */
-    #disclaimerBanner { font-size:11px; padding:8px 14px; }
+    /* Footer disclaimer */
+    #disclaimerBanner { font-size:11px !important; padding:10px 14px !important; }
+
+    /* Announcements */
+    .ann-item { padding:12px 14px; gap:10px; }
+    .ann-title { font-size:13px; }
+    .ann-msg { font-size:12px; }
+
+    /* Voting */
+    .vote-card { padding:16px; }
+    .vote-question { font-size:14px; }
+
+    /* Videos */
+    .videos-grid { grid-template-columns:1fr; }
   }
 
   @media(max-width:480px) {
@@ -420,25 +444,28 @@
     .logo-text { font-size:14px; }
     nav { gap:5px; }
     .nav-btn { padding:5px 8px; font-size:11px; }
-    /* Picks table - only show ticker + status on very small screens */
-    .picks-table th:nth-child(2), .picks-table td:nth-child(2),
-    .picks-table th:nth-child(5), .picks-table td:nth-child(5),
-    .picks-table th:nth-child(6), .picks-table td:nth-child(6) { display:none; }
+    /* Keep horizontal scroll on very small screens too — show all picks content */
+    .picks-table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    .picks-table { min-width:480px; }
+    .picks-table th, .picks-table td { padding:8px 8px; font-size:11px; }
     #dashboard { padding:10px 10px 28px; }
-    .section-title { font-size:18px; }
+    .section-title { font-size:17px; }
+
+    /* Footer */
+    #customFooter { padding:16px 14px; }
+    #disclaimerBanner { font-size:11px !important; padding:10px 12px !important; }
+
+    /* Win rate */
+    .wr-stats { gap:10px; }
+    .wr-stat-val { font-size:22px; }
+
+    /* Chat */
+    .chat-card { height:360px; }
+    .chat-messages { padding:10px; }
+    .msg-bubble { font-size:12px; padding:8px 10px; }
   }
 
-  /* ── PERSISTENT DISCLAIMER BANNER ── */
-  #disclaimerBanner {
-    background: rgba(255,71,87,.06);
-    border-top: 1px solid rgba(255,71,87,.18);
-    border-bottom: 1px solid rgba(255,71,87,.18);
-    padding: 10px 24px;
-    font-size: 12px;
-    color: var(--text3);
-    line-height: 1.65;
-    text-align: center;
-  }
+  /* ── PERSISTENT DISCLAIMER BANNER (footer) ── */
   #disclaimerBanner strong { color: var(--text2); }
 
   /* ── DAILY PICKS SECTIONS ── */
@@ -576,11 +603,6 @@
 <!-- CUSTOM HEADER -->
 <div id="customHeader"></div>
 
-<!-- PERSISTENT DISCLAIMER BANNER -->
-<div id="disclaimerBanner">
-  ⚠️ <strong>Disclaimer:</strong> The content on "Trade With Afrasiab" is for educational purposes only. Stock market investing involves significant risk of financial loss. I am not a registered financial advisor. No content here guarantees profit or specific returns. Past performance does not predict future results. Always conduct your own research or consult a professional before investing.
-</div>
-
 <!-- HEADER -->
 <header>
   <a class="logo" href="#" id="siteLogo">
@@ -602,11 +624,8 @@
 <!-- LANDING PAGE -->
 <div id="landingPage">
   <div class="hero">
-    <!-- Animated market graph cards — no specific names -->
+    <!-- Animated market graph cards — no text labels, candles only -->
     <div class="market-graph-card mgc1">
-      <div class="mg-label">Market Index</div>
-      <div class="mg-value" style="color:var(--green)">+2.4%</div>
-      <div class="mg-change mg-up">▲ Trending Up</div>
       <svg class="mg-svg" height="36" viewBox="0 0 120 36" xmlns="http://www.w3.org/2000/svg">
         <defs><linearGradient id="gUp" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--green)" stop-opacity=".3"/><stop offset="100%" stop-color="var(--green)" stop-opacity="0"/></linearGradient></defs>
         <path class="mg-fill mg-fill-up" d="M0,36 L0,28 L15,22 L30,25 L45,18 L60,14 L75,10 L90,6 L105,3 L120,0 L120,36 Z"/>
@@ -614,18 +633,12 @@
       </svg>
     </div>
     <div class="market-graph-card mgc2">
-      <div class="mg-label">Equity Growth</div>
-      <div class="mg-value" style="color:var(--red)">-1.1%</div>
-      <div class="mg-change mg-down">▼ Pullback</div>
       <svg class="mg-svg" height="36" viewBox="0 0 120 36" xmlns="http://www.w3.org/2000/svg">
         <path class="mg-fill mg-fill-down" d="M0,36 L0,6 L15,8 L30,4 L45,10 L60,14 L75,18 L90,22 L105,28 L120,32 L120,36 Z"/>
         <polyline class="mg-line mg-line-down" points="0,6 15,8 30,4 45,10 60,14 75,18 90,22 105,28 120,32"/>
       </svg>
     </div>
     <div class="market-graph-card mgc3">
-      <div class="mg-label">Signal Strength</div>
-      <div class="mg-value" style="color:var(--gold)">+0.7%</div>
-      <div class="mg-change" style="color:var(--gold)">◆ Consolidating</div>
       <svg class="mg-svg" height="36" viewBox="0 0 120 36" xmlns="http://www.w3.org/2000/svg">
         <polyline class="mg-line mg-line-flat" points="0,18 15,14 30,20 45,16 60,18 75,12 90,16 105,14 120,18"/>
       </svg>
@@ -848,6 +861,9 @@
 
 <!-- CUSTOM FOOTER -->
 <div id="customFooter">
+  <div id="disclaimerBanner" style="margin-bottom:14px;padding:12px 18px;background:rgba(255,71,87,.06);border:1px solid rgba(255,71,87,.18);border-radius:10px;font-size:12px;color:var(--text3);line-height:1.7;text-align:center;max-width:860px;margin-left:auto;margin-right:auto;margin-bottom:14px;">
+    ⚠️ <strong style="color:var(--text2)">Disclaimer:</strong> The content on "Trade With Afrasiab" is for educational purposes only. Stock market investing involves significant risk of financial loss. I am not a registered financial advisor. No content here guarantees profit or specific returns. Past performance does not predict future results. Always conduct your own research or consult a professional before investing.
+  </div>
   <div id="footerContent">© 2025 Trade With Afrasiab — All Rights Reserved</div>
 </div>
 
