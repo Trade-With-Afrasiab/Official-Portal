@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trade With Afrasiab — Premium Trading Signals</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
 // Apply cached logo IMMEDIATELY before Firebase loads — eliminates refresh flicker
 (function(){
@@ -197,6 +198,32 @@
   .auth-switch a:hover { text-decoration:underline; }
   .form-err { background:rgba(255,71,87,.1); border:1px solid rgba(255,71,87,.3); color:var(--red); padding:10px 14px; border-radius:8px; font-size:13px; margin-top:10px; display:none; }
   .form-err.show { display:block; }
+
+  /* ── EMAIL VERIFICATION STEP ── */
+  .verify-icon { font-size:36px; text-align:center; margin-bottom:12px; }
+  .verify-hint { font-size:13px; color:var(--text2); margin-bottom:20px; line-height:1.6; text-align:center; }
+  .verify-hint strong { color:var(--text); }
+  .verify-code-input {
+    width:100%;
+    background:var(--bg2);
+    border:2px solid var(--border2);
+    color:var(--text);
+    padding:14px;
+    border-radius:10px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:26px;
+    letter-spacing:.3em;
+    text-align:center;
+    outline:none;
+    transition:border-color .2s;
+    margin-bottom:14px;
+  }
+  .verify-code-input:focus { border-color:var(--gold); }
+  .verify-resend { text-align:center; font-size:12px; color:var(--text3); margin-top:10px; }
+  .verify-resend a { color:var(--gold); cursor:pointer; }
+  .verify-resend a:hover { text-decoration:underline; }
+  .verify-back { background:none; border:none; color:var(--text3); font-size:12px; cursor:pointer; margin-top:8px; display:block; text-align:center; width:100%; font-family:'DM Sans',sans-serif; transition:color .2s; }
+  .verify-back:hover { color:var(--text); }
 
   /* ── MAIN DASHBOARD ── */
   #dashboard { display:none; padding:24px 24px 40px; max-width:1400px; margin:0 auto; }
@@ -857,14 +884,6 @@
     <div id="votingFeed"></div>
   </div>
 
-  <!-- YouTube Videos -->
-  <div class="videos-section" id="videosSection" style="display:none;">
-    <div class="section-header" style="margin-bottom:12px;">
-      <div class="section-title">🎬 VIDEOS</div>
-    </div>
-    <div class="videos-grid" id="videosFeed"></div>
-  </div>
-
   <div class="dash-grid">
     <!-- PICKS -->
     <div>
@@ -958,6 +977,14 @@
       </div>
     </div>
   </div>
+
+  <!-- YouTube Videos -->
+  <div class="videos-section" id="videosSection" style="display:none;">
+    <div class="section-header" style="margin-bottom:12px;">
+      <div class="section-title">🎬 VIDEOS</div>
+    </div>
+    <div class="videos-grid" id="videosFeed"></div>
+  </div>
 </div>
 
 <!-- CUSTOM FOOTER -->
@@ -1012,6 +1039,17 @@
       <div class="form-err" id="signupErr"></div>
       <button class="btn-submit" id="signupBtn" onclick="doSignup()">Create Account</button>
       <div class="auth-switch">Already have an account? <a onclick="showAuth('login')">Sign in</a></div>
+    </div>
+    <!-- Email Verification Step -->
+    <div id="verifyForm" style="display:none">
+      <div class="verify-icon">📧</div>
+      <div class="modal-title" style="text-align:center">Verify Your Email</div>
+      <div class="verify-hint">We sent a 6-digit code to <strong id="verifyEmailDisplay"></strong>. Enter it below to activate your account.</div>
+      <input class="verify-code-input" type="text" id="verifyCodeInput" maxlength="6" placeholder="000000" oninput="this.value=this.value.replace(/[^0-9]/g,'')" onkeydown="if(event.key==='Enter')doVerifyCode()">
+      <div class="form-err" id="verifyErr"></div>
+      <button class="btn-submit" id="verifyBtn" onclick="doVerifyCode()">Verify & Enter Dashboard</button>
+      <div class="verify-resend">Didn't get it? <a onclick="doResendCode()">Resend code</a></div>
+      <button class="verify-back" onclick="cancelVerification()">← Back to Sign Up</button>
     </div>
   </div>
 </div>
@@ -1109,31 +1147,129 @@ async function doLogin() {
   btn.disabled = false; btn.textContent = 'Sign In';
 }
 
+// ── EMAILJS CONFIG ──
+// Replace these with your EmailJS public key, service ID, and template ID
+const EMAILJS_PUBLIC_KEY  = 'O_RxvAkJhUkbIUetW';
+const EMAILJS_SERVICE_ID  = 'service_jh5g7s9';
+const EMAILJS_TEMPLATE_ID = 'template_k8uqzfr';
+
+// Pending signup state (held in memory until verified)
+let _pendingSignup = null; // { name, city, wa, email, pass, code }
+
+function generateCode() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+async function sendVerificationEmail(toEmail, toName, code) {
+  await emailjs.send(
+    EMAILJS_SERVICE_ID,
+    EMAILJS_TEMPLATE_ID,
+    { to_email: toEmail, to_name: toName, verification_code: code },
+    EMAILJS_PUBLIC_KEY
+  );
+}
+
 async function doSignup() {
-  const name = document.getElementById('signupName').value.trim();
-  const city = document.getElementById('signupCity').value.trim();
-  const wa = document.getElementById('signupWa').value.trim();
+  const name  = document.getElementById('signupName').value.trim();
+  const city  = document.getElementById('signupCity').value.trim();
+  const wa    = document.getElementById('signupWa').value.trim();
   const email = document.getElementById('signupEmail').value.trim();
-  const pass = document.getElementById('signupPass').value;
+  const pass  = document.getElementById('signupPass').value;
   hideErr('signupErr');
   if (!name||!city||!wa||!email||!pass) { showErr('signupErr','All fields are required'); return; }
   if (pass.length < 6) { showErr('signupErr','Password must be at least 6 characters'); return; }
+
   const btn = document.getElementById('signupBtn');
-  btn.disabled = true; btn.textContent = 'Creating...';
+  btn.disabled = true; btn.textContent = 'Sending code...';
+
+  const code = generateCode();
   try {
-    const cred = await createUserWithEmailAndPassword(auth, email, pass);
-    const uid = cred.user.uid;
-    await set(ref(db, `users/${uid}`), {
-      fullName: name, city, whatsapp: wa, email,
-      status: 'active', signupDate: Date.now(), uid
-    });
-    closeAuth();
-    showToast('Account created! Welcome aboard 🎉');
+    await sendVerificationEmail(email, name, code);
   } catch(e) {
-    showErr('signupErr', e.message.replace('Firebase: ',''));
+    showErr('signupErr', 'Failed to send verification email. Please check your email address and try again.');
+    btn.disabled = false; btn.textContent = 'Create Account';
+    return;
   }
+
+  // Store pending signup in memory
+  _pendingSignup = { name, city, wa, email, pass, code };
+
+  // Switch to verification step
+  document.getElementById('signupForm').style.display = 'none';
+  document.getElementById('verifyForm').style.display = 'block';
+  document.getElementById('verifyEmailDisplay').textContent = email;
+  document.getElementById('verifyCodeInput').value = '';
+  hideErr('verifyErr');
+
   btn.disabled = false; btn.textContent = 'Create Account';
 }
+
+async function doVerifyCode() {
+  if (!_pendingSignup) return;
+  const entered = document.getElementById('verifyCodeInput').value.trim();
+  hideErr('verifyErr');
+
+  if (entered.length !== 6) {
+    showErr('verifyErr', 'Please enter the 6-digit code.');
+    return;
+  }
+  if (entered !== _pendingSignup.code) {
+    showErr('verifyErr', 'Incorrect code. Please try again.');
+    return;
+  }
+
+  // Code is correct — create the Firebase account
+  const btn = document.getElementById('verifyBtn');
+  btn.disabled = true; btn.textContent = 'Creating account...';
+
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, _pendingSignup.email, _pendingSignup.pass);
+    const uid = cred.user.uid;
+    await set(ref(db, `users/${uid}`), {
+      fullName: _pendingSignup.name,
+      city: _pendingSignup.city,
+      whatsapp: _pendingSignup.wa,
+      email: _pendingSignup.email,
+      status: 'active',
+      signupDate: Date.now(),
+      uid,
+      emailVerified: true
+    });
+    _pendingSignup = null;
+    closeAuth();
+    showToast('Account created! Welcome aboard 🎉');
+    // onAuthStateChanged fires → shows consent modal → auto-login
+  } catch(e) {
+    showErr('verifyErr', e.message.replace('Firebase: ',''));
+  }
+
+  btn.disabled = false; btn.textContent = 'Verify & Enter Dashboard';
+}
+
+async function doResendCode() {
+  if (!_pendingSignup) return;
+  const newCode = generateCode();
+  try {
+    await sendVerificationEmail(_pendingSignup.email, _pendingSignup.name, newCode);
+    _pendingSignup.code = newCode;
+    document.getElementById('verifyCodeInput').value = '';
+    hideErr('verifyErr');
+    showToast('New verification code sent! Check your email.');
+  } catch(e) {
+    showErr('verifyErr', 'Failed to resend code. Please try again.');
+  }
+}
+
+function cancelVerification() {
+  _pendingSignup = null;
+  document.getElementById('verifyForm').style.display = 'none';
+  document.getElementById('signupForm').style.display = 'block';
+  hideErr('verifyErr');
+}
+
+window.doVerifyCode = doVerifyCode;
+window.doResendCode = doResendCode;
+window.cancelVerification = cancelVerification;
 
 async function doLogout() {
   await signOut(auth);
@@ -1354,7 +1490,7 @@ function listenAnnouncements() {
     const items = Object.entries(snap.val()).map(([k,v])=>({id:k,...v})).sort((a,b)=>b.timestamp-a.timestamp);
     section.style.display = 'block';
     const typeIcon = {info:'ℹ️', alert:'🚨', success:'✅', warning:'⚠️'};
-    feed.innerHTML = items.map(a => {
+    const renderItems = (list) => list.map(a => {
       const date = a.timestamp ? new Date(a.timestamp).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
       return `<div class="ann-item type-${a.type||'info'}">
         <div class="ann-icon">${typeIcon[a.type]||'📣'}</div>
@@ -1365,6 +1501,14 @@ function listenAnnouncements() {
         </div>
       </div>`;
     }).join('');
+    const visible = items.slice(0, 3);
+    const hidden = items.slice(3);
+    let html = renderItems(visible);
+    if (hidden.length > 0) {
+      html += `<div id="annHiddenItems" style="display:none;">${renderItems(hidden)}</div>`;
+      html += `<div style="text-align:center;margin-top:10px;"><button id="annSeeMoreBtn" onclick="(function(){document.getElementById('annHiddenItems').style.display='block';document.getElementById('annSeeMoreBtn').style.display='none';})()" style="background:none;border:1px solid var(--border2);color:var(--text2);padding:8px 22px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'">See More (${hidden.length} more)</button></div>`;
+    }
+    feed.innerHTML = html;
   });
 }
 
@@ -1484,6 +1628,30 @@ function updateWinRate(picks) {
 
 function listenChat() {
   const msgContainer = document.getElementById('chatMessages');
+  // Listen to livechat disabled setting
+  onValue(ref(db, 'chatSettings/livechatDisabled'), (settingSnap) => {
+    const isDisabled = settingSnap.exists() && settingSnap.val() === true;
+    const inputWrap = document.querySelector('.chat-input-wrap');
+    const chatInput = document.getElementById('chatInput');
+    const chatSendBtn = document.querySelector('.chat-send');
+    if (isDisabled) {
+      if (inputWrap) inputWrap.style.display = 'none';
+      // Show closed notice if not already shown
+      let closedNotice = document.getElementById('chatClosedNotice');
+      if (!closedNotice) {
+        closedNotice = document.createElement('div');
+        closedNotice.id = 'chatClosedNotice';
+        closedNotice.style.cssText = 'padding:10px 14px;border-top:1px solid var(--border);text-align:center;font-size:12px;color:var(--text3);background:rgba(255,71,87,.05);';
+        closedNotice.textContent = '🔒 LiveChat is currently unavailable.';
+        const chatCard = document.querySelector('.chat-card');
+        if (chatCard) chatCard.appendChild(closedNotice);
+      }
+    } else {
+      if (inputWrap) inputWrap.style.display = 'flex';
+      const closedNotice = document.getElementById('chatClosedNotice');
+      if (closedNotice) closedNotice.remove();
+    }
+  });
   onValue(ref(db, 'chat'), (snap) => {
     if (!snap.exists()) {
       msgContainer.innerHTML = `<div style="text-align:center;color:var(--text3);font-size:12px;margin:20px 0">No messages yet. Say hello! 👋</div>`;
@@ -1508,6 +1676,12 @@ async function sendChat() {
   const input = document.getElementById('chatInput');
   const msg = input.value.trim();
   if (!msg || !currentUser) return;
+  // Check if livechat is disabled
+  const settingSnap = await get(ref(db, 'chatSettings/livechatDisabled'));
+  if (settingSnap.exists() && settingSnap.val() === true) {
+    showToast('LiveChat is currently unavailable.', 'error');
+    return;
+  }
   input.value = '';
   await push(ref(db, 'chat'), {
     uid: currentUser.uid,
