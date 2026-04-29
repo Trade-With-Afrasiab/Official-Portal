@@ -789,6 +789,7 @@
     <div class="hero-btns">
       <button class="btn-hero gold" id="heroBtnSignup" onclick="(function(){var m=document.getElementById('authModal');var l=document.getElementById('loginForm');var s=document.getElementById('signupForm');if(m){m.style.display='flex';m.classList.add('active');}if(l)l.style.display='none';if(s)s.style.display='block';})()">Start Trading Free</button>
       <button class="btn-hero outline" id="heroBtnSignin" onclick="(function(){var m=document.getElementById('authModal');var l=document.getElementById('loginForm');var s=document.getElementById('signupForm');if(m){m.style.display='flex';m.classList.add('active');}if(l)l.style.display='block';if(s)s.style.display='none';})()">Sign In</button>
+      <button class="btn-hero outline" id="heroBtnPSX" onclick="showPSXPage()" style="border-color:var(--gold);color:var(--gold);">🏦 Open Trading Account in PSX</button>
     </div>
   </div>
 
@@ -986,6 +987,177 @@
     <div class="videos-grid" id="videosFeed"></div>
   </div>
 </div>
+
+<!-- PSX ACCOUNT OPENING PAGE -->
+<div id="psxPage" style="display:none;padding:0 0 60px;">
+  <div style="max-width:860px;margin:0 auto;padding:28px 20px 0;">
+    <!-- Back Button -->
+    <button onclick="hidePSXPage()" style="background:none;border:1px solid var(--border2);color:var(--text2);padding:8px 18px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;margin-bottom:24px;transition:all .2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'">← Back to Home</button>
+
+    <div style="margin-bottom:28px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;">Pakistan Stock Exchange</div>
+      <h1 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,6vw,56px);letter-spacing:.04em;margin-bottom:8px;">OPEN TRADING <span style="color:var(--gold)">ACCOUNT</span></h1>
+      <p style="font-size:14px;color:var(--text2);line-height:1.6;">Start your journey in the Pakistan Stock Exchange. Select your account type below to get started.</p>
+    </div>
+
+    <!-- Track Existing Application -->
+    <div style="background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:18px 22px;margin-bottom:28px;display:flex;align-items:center;flex-wrap:wrap;gap:12px;">
+      <div style="flex:1;min-width:220px;">
+        <div style="font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Track Your Application</div>
+        <div style="font-size:13px;color:var(--text2);">Already submitted? Check your application status using your CNIC number.</div>
+      </div>
+      <button onclick="showPSXTracker()" style="background:transparent;border:1px solid var(--gold);color:var(--gold);padding:10px 22px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s;" onmouseover="this.style.background='rgba(240,180,41,.1)'" onmouseout="this.style.background='transparent'">📋 Track Application</button>
+    </div>
+
+    <!-- Tracker Section -->
+    <div id="psxTrackerSection" style="display:none;background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:26px;margin-bottom:28px;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.04em;margin-bottom:6px;">APPLICATION TRACKER</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:20px;">Enter your CNIC number (without dashes) to view your application status.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;">
+        <input type="text" id="trackerCnicInput" placeholder="e.g. 3520112345678" maxlength="13" style="flex:1;min-width:200px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:11px 14px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'">
+        <button onclick="searchPSXApplication()" style="background:var(--gold);color:#000;border:none;padding:11px 24px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">🔍 Search</button>
+      </div>
+      <div id="trackerResult"></div>
+    </div>
+
+    <!-- Account Type Selection -->
+    <div id="psxFormSection">
+      <div style="font-size:13px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;">Step 1 — Select Account Type</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;" id="acctTypeCards">
+        <div id="cardSahulat" onclick="selectAccountType('Sahulat')" style="background:var(--card);border:2px solid var(--border2);border-radius:14px;padding:22px 18px;cursor:pointer;transition:all .25s;">
+          <div style="font-size:28px;margin-bottom:10px;">🪙</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.05em;color:var(--gold);margin-bottom:6px;">SAHULAT ACCOUNT</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.6;">Only 2 documents required (CNIC & bank account). Net worth limit: <strong style="color:var(--text)">3M PKR</strong>. You can trade, buy stocks, earn profit, and deposit to increase your limit.</div>
+        </div>
+        <div id="cardNormal" onclick="selectAccountType('Normal')" style="background:var(--card);border:2px solid var(--border2);border-radius:14px;padding:22px 18px;cursor:pointer;transition:all .25s;">
+          <div style="font-size:28px;margin-bottom:10px;">📈</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.05em;color:var(--accent);margin-bottom:6px;">NORMAL ACCOUNT</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.6;">No net worth limit. Requires more documentation including bank statement, FBR return, and income proof.</div>
+        </div>
+      </div>
+
+      <!-- The Form -->
+      <div id="psxAccountForm" style="display:none;">
+        <div style="background:rgba(240,180,41,.06);border:1px solid rgba(240,180,41,.2);border-radius:10px;padding:12px 18px;margin-bottom:24px;font-size:13px;color:var(--text2);">
+          Selected account type: <strong id="selectedAcctTypeLabel" style="color:var(--gold)"></strong>
+          <button onclick="resetAccountType()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;margin-left:12px;text-decoration:underline;">Change</button>
+        </div>
+
+        <!-- SECTION: Main Applicant Details -->
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.05em;color:var(--text2);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border);">📋 DETAILS OF MAIN APPLICANT</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Name (As per CNIC) <span style="color:var(--red)">*</span></label><input type="text" id="f_name" class="psx-inp" placeholder="Full name as on CNIC"></div>
+          <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">CNIC No. <span style="color:var(--red)">*</span></label><input type="text" id="f_cnic" class="psx-inp" placeholder="XXXXX-XXXXXXX-X" maxlength="15"></div>
+          <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">CNIC Expiry Date <span style="color:var(--red)">*</span></label><input type="date" id="f_cnicExpiry" class="psx-inp"></div>
+          <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Date of Birth <span style="color:var(--red)">*</span></label><input type="date" id="f_dob" class="psx-inp"></div>
+          <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Mobile Number <span style="color:var(--red)">*</span></label><input type="tel" id="f_mobile" class="psx-inp" placeholder="+92 300 1234567"></div>
+          <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Landline Number</label><input type="tel" id="f_landline" class="psx-inp" placeholder="Optional"></div>
+          <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Email Address <span style="color:var(--red)">*</span></label><input type="email" id="f_email" class="psx-inp" placeholder="you@example.com"></div>
+          <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Mother's Name <span style="color:var(--red)">*</span></label><input type="text" id="f_mother" class="psx-inp" placeholder="Mother's full name"></div>
+          <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Father's / Husband's Name <span style="color:var(--red)">*</span></label><input type="text" id="f_father" class="psx-inp" placeholder="Father's or husband's name"></div>
+          <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Nationality <span style="color:var(--red)">*</span></label>
+            <select id="f_nationality" class="psx-inp"><option value="">Select...</option><option value="Pakistani">Pakistani</option><option value="Other">Other</option></select>
+          </div>
+          <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Marital Status <span style="color:var(--red)">*</span></label>
+            <select id="f_marital" class="psx-inp"><option value="">Select...</option><option value="Single">Single</option><option value="Married">Married</option><option value="Divorced">Divorced</option><option value="Widowed">Widowed</option></select>
+          </div>
+          <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Residential Status <span style="color:var(--red)">*</span></label>
+            <select id="f_residentialStatus" class="psx-inp"><option value="">Select...</option><option value="Resident">Resident Pakistani</option><option value="Non-Resident">Non-Resident Pakistani</option><option value="Foreign National">Foreign National</option></select>
+          </div>
+          <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Zakat Status <span style="color:var(--red)">*</span></label>
+            <select id="f_zakat" class="psx-inp"><option value="">Select...</option><option value="Muslim">Muslim (Zakat deductible)</option><option value="Non-Muslim">Non-Muslim</option><option value="Exempt">Exempt</option></select>
+          </div>
+          <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Gross Annual Income (PKR) <span style="color:var(--red)">*</span></label><input type="number" id="f_income" class="psx-inp" placeholder="e.g. 1200000"></div>
+          <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Source of Income <span style="color:var(--red)">*</span></label>
+            <select id="f_incomeSource" class="psx-inp"><option value="">Select...</option><option value="Salary">Salary</option><option value="Business">Business</option><option value="Investment">Investment</option><option value="Inheritance">Inheritance</option><option value="Other">Other</option></select>
+          </div>
+          <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Occupation <span style="color:var(--red)">*</span></label><input type="text" id="f_occupation" class="psx-inp" placeholder="e.g. Engineer"></div>
+          <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Name of Employer / Business <span style="color:var(--red)">*</span></label><input type="text" id="f_employer" class="psx-inp" placeholder="Company or business name"></div>
+          <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Job Title / Designation</label><input type="text" id="f_jobTitle" class="psx-inp" placeholder="e.g. Senior Manager"></div>
+          <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Department</label><input type="text" id="f_department" class="psx-inp" placeholder="e.g. Finance"></div>
+        </div>
+        <div style="margin-bottom:14px;"><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Mailing Address <span style="color:var(--red)">*</span></label><textarea id="f_mailingAddr" class="psx-inp" rows="2" placeholder="Current mailing address" style="resize:vertical;min-height:60px;"></textarea></div>
+        <div style="margin-bottom:14px;"><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Permanent Address <span style="color:var(--red)">*</span></label><textarea id="f_permanentAddr" class="psx-inp" rows="2" placeholder="Permanent residential address" style="resize:vertical;min-height:60px;"></textarea></div>
+        <div style="margin-bottom:24px;"><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Address of Employer / Business</label><textarea id="f_employerAddr" class="psx-inp" rows="2" placeholder="Employer or business address" style="resize:vertical;min-height:60px;"></textarea></div>
+
+        <!-- SECTION: Nominee Details -->
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.05em;color:var(--text2);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border);">👤 NOMINEE DETAILS</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:24px;">
+          <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Nominee Name <span style="color:var(--red)">*</span></label><input type="text" id="f_nomineeName" class="psx-inp" placeholder="Full name"></div>
+          <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Nominee CNIC <span style="color:var(--red)">*</span></label><input type="text" id="f_nomineeCnic" class="psx-inp" placeholder="XXXXX-XXXXXXX-X" maxlength="15"></div>
+          <div><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Relation with Nominee <span style="color:var(--red)">*</span></label><input type="text" id="f_nomineeRelation" class="psx-inp" placeholder="e.g. Spouse, Parent"></div>
+        </div>
+
+        <!-- SECTION: Document Uploads -->
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.05em;color:var(--text2);margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border);">📎 REQUIRED DOCUMENTS</div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:18px;">Max file size: <strong style="color:var(--text2)">500KB</strong> per file. Accepted formats: JPG, PNG, PDF, WEBP.</p>
+
+        <div id="psxDocsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;">
+          <!-- Common docs for both account types -->
+          <div class="psx-doc-item"><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">CNIC Front Picture <span style="color:var(--red)">*</span></label><input type="file" id="doc_cnicFront" class="psx-file" accept="image/jpeg,image/png,image/webp,application/pdf" onchange="handleDocUpload(event,'doc_cnicFront','lbl_cnicFront')"><div id="lbl_cnicFront" class="psx-file-lbl">No file selected</div></div>
+          <div class="psx-doc-item"><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">CNIC Back Picture <span style="color:var(--red)">*</span></label><input type="file" id="doc_cnicBack" class="psx-file" accept="image/jpeg,image/png,image/webp,application/pdf" onchange="handleDocUpload(event,'doc_cnicBack','lbl_cnicBack')"><div id="lbl_cnicBack" class="psx-file-lbl">No file selected</div></div>
+          <div class="psx-doc-item"><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Nominee CNIC Front <span style="color:var(--red)">*</span></label><input type="file" id="doc_nomineeCnicFront" class="psx-file" accept="image/jpeg,image/png,image/webp,application/pdf" onchange="handleDocUpload(event,'doc_nomineeCnicFront','lbl_nomineeCnicFront')"><div id="lbl_nomineeCnicFront" class="psx-file-lbl">No file selected</div></div>
+          <div class="psx-doc-item"><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Nominee CNIC Back <span style="color:var(--red)">*</span></label><input type="file" id="doc_nomineeCnicBack" class="psx-file" accept="image/jpeg,image/png,image/webp,application/pdf" onchange="handleDocUpload(event,'doc_nomineeCnicBack','lbl_nomineeCnicBack')"><div id="lbl_nomineeCnicBack" class="psx-file-lbl">No file selected</div></div>
+          <div class="psx-doc-item"><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Cheque / Account Maintenance Certificate <span style="color:var(--red)">*</span></label><input type="file" id="doc_cheque" class="psx-file" accept="image/jpeg,image/png,image/webp,application/pdf" onchange="handleDocUpload(event,'doc_cheque','lbl_cheque')"><div id="lbl_cheque" class="psx-file-lbl">No file selected</div></div>
+          <div class="psx-doc-item"><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Picture of Signatures <span style="color:var(--red)">*</span></label><input type="file" id="doc_signature" class="psx-file" accept="image/jpeg,image/png,image/webp,application/pdf" onchange="handleDocUpload(event,'doc_signature','lbl_signature')"><div id="lbl_signature" class="psx-file-lbl">No file selected</div></div>
+          <!-- Normal account additional docs -->
+          <div class="psx-doc-item psx-normal-only" style="display:none;"><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Source of Income Document <span style="color:var(--red)">*</span><br><span style="font-size:10px;color:var(--text3);text-transform:none;">(Salary slip or business letterhead)</span></label><input type="file" id="doc_incomeProof" class="psx-file" accept="image/jpeg,image/png,image/webp,application/pdf" onchange="handleDocUpload(event,'doc_incomeProof','lbl_incomeProof')"><div id="lbl_incomeProof" class="psx-file-lbl">No file selected</div></div>
+          <div class="psx-doc-item psx-normal-only" style="display:none;"><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">FBR Return (Latest) <span style="color:var(--red)">*</span></label><input type="file" id="doc_fbr" class="psx-file" accept="image/jpeg,image/png,image/webp,application/pdf" onchange="handleDocUpload(event,'doc_fbr','lbl_fbr')"><div id="lbl_fbr" class="psx-file-lbl">No file selected</div></div>
+          <div class="psx-doc-item psx-normal-only" style="display:none;"><label style="display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">6-Month Bank Statement (Most Recent) <span style="color:var(--red)">*</span></label><input type="file" id="doc_bankStatement" class="psx-file" accept="image/jpeg,image/png,image/webp,application/pdf" onchange="handleDocUpload(event,'doc_bankStatement','lbl_bankStatement')"><div id="lbl_bankStatement" class="psx-file-lbl">No file selected</div></div>
+        </div>
+
+        <!-- Submit -->
+        <div id="psxFormErr" style="display:none;background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.3);color:var(--red);padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;"></div>
+        <button onclick="submitPSXApplication()" id="psxSubmitBtn" style="background:var(--gold);color:#000;border:none;padding:14px 36px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .25s;" onmouseover="this.style.background='var(--gold2)'" onmouseout="this.style.background='var(--gold)'">📤 Submit Application</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PSX Success Modal -->
+<div id="psxSuccessModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:3000;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
+  <div style="background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:40px 36px;width:100%;max-width:440px;text-align:center;animation:modalIn .3s ease;">
+    <div style="font-size:48px;margin-bottom:16px;">✅</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.04em;margin-bottom:8px;">APPLICATION SUBMITTED!</div>
+    <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:16px;">Your PSX account opening application has been received. You can track your application status using your CNIC number.</p>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 18px;margin-bottom:20px;">
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Application Reference</div>
+      <div id="psxAppRefDisplay" style="font-family:'JetBrains Mono',monospace;font-size:18px;color:var(--gold);letter-spacing:.1em;"></div>
+    </div>
+    <button onclick="closePSXSuccess()" style="background:var(--gold);color:#000;border:none;padding:12px 32px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Done</button>
+  </div>
+</div>
+
+<style>
+.psx-inp {
+  width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);
+  padding:10px 14px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;
+  outline:none;transition:border-color .2s;
+}
+.psx-inp:focus { border-color:var(--gold); }
+.psx-file { display:none; }
+.psx-doc-item {
+  background:var(--card2);border:1px dashed var(--border2);border-radius:10px;padding:14px 16px;
+  cursor:pointer;transition:all .2s;
+}
+.psx-doc-item:hover { border-color:var(--gold); }
+.psx-doc-item label { cursor:pointer; }
+.psx-file-lbl {
+  font-size:11px;color:var(--text3);margin-top:8px;font-family:'JetBrains Mono',monospace;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.psx-file-lbl.uploaded { color:var(--green); }
+.psx-doc-item { position:relative; }
+.psx-doc-item::after {
+  content:'📎 Click to upload';font-size:11px;color:var(--text3);display:block;margin-top:6px;
+}
+.psx-doc-item.has-file::after { content:''; }
+@media(max-width:600px){
+  #acctTypeCards { grid-template-columns:1fr !important; }
+  #psxDocsGrid { grid-template-columns:1fr !important; }
+  .psx-inp { font-size:13px; }
+}
+</style>
 
 <!-- CUSTOM FOOTER -->
 <div id="customFooter">
@@ -1789,6 +1961,242 @@ function escHtml(s) {
   if (!s) return '';
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
+// ── PSX ACCOUNT OPENING ──
+
+let psxSelectedAccountType = null;
+let psxDocData = {}; // stores base64 data for each document
+
+window.showPSXPage = function() {
+  document.getElementById('landingPage').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('psxPage').style.display = 'block';
+  window.scrollTo(0, 0);
+};
+
+window.hidePSXPage = function() {
+  document.getElementById('psxPage').style.display = 'none';
+  if (currentUser) {
+    document.getElementById('dashboard').style.display = 'block';
+  } else {
+    document.getElementById('landingPage').style.display = 'block';
+  }
+  window.scrollTo(0, 0);
+};
+
+window.showPSXTracker = function() {
+  const s = document.getElementById('psxTrackerSection');
+  s.style.display = s.style.display === 'none' ? 'block' : 'none';
+};
+
+window.selectAccountType = function(type) {
+  psxSelectedAccountType = type;
+  // Highlight selected card
+  document.getElementById('cardSahulat').style.border = type === 'Sahulat' ? '2px solid var(--gold)' : '2px solid var(--border2)';
+  document.getElementById('cardNormal').style.border = type === 'Normal' ? '2px solid var(--accent)' : '2px solid var(--border2)';
+  document.getElementById('selectedAcctTypeLabel').textContent = type === 'Sahulat' ? 'Sahulat Account' : 'Normal Account';
+  document.getElementById('psxAccountForm').style.display = 'block';
+  // Show/hide Normal-only docs
+  document.querySelectorAll('.psx-normal-only').forEach(el => {
+    el.style.display = type === 'Normal' ? '' : 'none';
+  });
+  // Scroll to form
+  document.getElementById('psxAccountForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+window.resetAccountType = function() {
+  psxSelectedAccountType = null;
+  psxDocData = {};
+  document.getElementById('cardSahulat').style.border = '2px solid var(--border2)';
+  document.getElementById('cardNormal').style.border = '2px solid var(--border2)';
+  document.getElementById('psxAccountForm').style.display = 'none';
+};
+
+window.handleDocUpload = function(event, inputId, lblId) {
+  const file = event.target.files[0];
+  const lbl = document.getElementById(lblId);
+  const item = event.target.closest('.psx-doc-item');
+  if (!file) { lbl.textContent = 'No file selected'; lbl.className = 'psx-file-lbl'; if(item) item.classList.remove('has-file'); return; }
+  const allowedTypes = ['image/jpeg','image/png','image/webp','application/pdf'];
+  if (!allowedTypes.includes(file.type)) {
+    showToast('Invalid file type. Only JPG, PNG, WEBP, PDF allowed.', 'error');
+    event.target.value = '';
+    lbl.textContent = 'Invalid file type';
+    lbl.className = 'psx-file-lbl';
+    if(item) item.classList.remove('has-file');
+    return;
+  }
+  if (file.size > 500 * 1024) {
+    showToast('File too large. Maximum 500KB allowed.', 'error');
+    event.target.value = '';
+    lbl.textContent = 'File too large (max 500KB)';
+    lbl.className = 'psx-file-lbl';
+    if(item) item.classList.remove('has-file');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    psxDocData[inputId] = { name: file.name, type: file.type, data: e.target.result };
+    lbl.textContent = '✓ ' + file.name;
+    lbl.className = 'psx-file-lbl uploaded';
+    if(item) item.classList.add('has-file');
+  };
+  reader.readAsDataURL(file);
+};
+
+window.submitPSXApplication = async function() {
+  const errEl = document.getElementById('psxFormErr');
+  errEl.style.display = 'none';
+
+  const val = id => (document.getElementById(id) ? document.getElementById(id).value.trim() : '');
+
+  // Required fields
+  const requiredFields = [
+    ['f_name','Name (As per CNIC)'],['f_cnic','CNIC No.'],['f_cnicExpiry','CNIC Expiry Date'],
+    ['f_dob','Date of Birth'],['f_mobile','Mobile Number'],['f_email','Email Address'],
+    ['f_mother',"Mother's Name"],['f_father',"Father's / Husband's Name"],
+    ['f_nationality','Nationality'],['f_marital','Marital Status'],
+    ['f_residentialStatus','Residential Status'],['f_zakat','Zakat Status'],
+    ['f_income','Gross Annual Income'],['f_incomeSource','Source of Income'],
+    ['f_occupation','Occupation'],['f_employer','Name of Employer / Business'],
+    ['f_mailingAddr','Mailing Address'],['f_permanentAddr','Permanent Address'],
+    ['f_nomineeName','Nominee Name'],['f_nomineeCnic','Nominee CNIC'],['f_nomineeRelation','Relation with Nominee']
+  ];
+  for (const [id, label] of requiredFields) {
+    if (!val(id)) { errEl.textContent = `Please fill in: ${label}`; errEl.style.display = 'block'; document.getElementById(id).focus(); return; }
+  }
+
+  // Required documents (common)
+  const commonDocs = ['doc_cnicFront','doc_cnicBack','doc_nomineeCnicFront','doc_nomineeCnicBack','doc_cheque','doc_signature'];
+  const normalDocs = ['doc_incomeProof','doc_fbr','doc_bankStatement'];
+  const requiredDocs = psxSelectedAccountType === 'Normal' ? [...commonDocs, ...normalDocs] : commonDocs;
+  const docLabels = {
+    doc_cnicFront:'CNIC Front', doc_cnicBack:'CNIC Back',
+    doc_nomineeCnicFront:'Nominee CNIC Front', doc_nomineeCnicBack:'Nominee CNIC Back',
+    doc_cheque:'Cheque / Account Maintenance Certificate', doc_signature:'Signature Picture',
+    doc_incomeProof:'Source of Income Document', doc_fbr:'FBR Return', doc_bankStatement:'6-Month Bank Statement'
+  };
+  for (const docId of requiredDocs) {
+    if (!psxDocData[docId]) {
+      errEl.textContent = `Please upload: ${docLabels[docId]}`;
+      errEl.style.display = 'block';
+      return;
+    }
+  }
+
+  const btn = document.getElementById('psxSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+
+  const appRef = Math.random().toString(36).substr(2,8).toUpperCase();
+  const appData = {
+    refId: appRef,
+    accountType: psxSelectedAccountType,
+    status: 'Submitted',
+    submittedAt: Date.now(),
+    applicantName: val('f_name'),
+    cnic: val('f_cnic'),
+    cnicExpiry: val('f_cnicExpiry'),
+    dob: val('f_dob'),
+    mobile: val('f_mobile'),
+    landline: val('f_landline'),
+    email: val('f_email'),
+    mailingAddress: val('f_mailingAddr'),
+    permanentAddress: val('f_permanentAddr'),
+    zakat: val('f_zakat'),
+    motherName: val('f_mother'),
+    fatherHusbandName: val('f_father'),
+    nationality: val('f_nationality'),
+    maritalStatus: val('f_marital'),
+    residentialStatus: val('f_residentialStatus'),
+    grossAnnualIncome: val('f_income'),
+    sourceOfIncome: val('f_incomeSource'),
+    occupation: val('f_occupation'),
+    employer: val('f_employer'),
+    jobTitle: val('f_jobTitle'),
+    department: val('f_department'),
+    employerAddress: val('f_employerAddr'),
+    nomineeName: val('f_nomineeName'),
+    nomineeCnic: val('f_nomineeCnic'),
+    nomineeRelation: val('f_nomineeRelation'),
+    documents: psxDocData,
+    fieldConfig: {}
+  };
+
+  try {
+    await set(ref(db, `psxApplications/${appRef}`), appData);
+    document.getElementById('psxAppRefDisplay').textContent = appRef;
+    document.getElementById('psxSuccessModal').style.display = 'flex';
+    // Reset form
+    psxDocData = {};
+    psxSelectedAccountType = null;
+    document.getElementById('psxAccountForm').style.display = 'none';
+    document.getElementById('cardSahulat').style.border = '2px solid var(--border2)';
+    document.getElementById('cardNormal').style.border = '2px solid var(--border2)';
+    document.querySelectorAll('.psx-inp').forEach(el => el.value = '');
+    document.querySelectorAll('.psx-file-lbl').forEach(el => { el.textContent = 'No file selected'; el.className='psx-file-lbl'; });
+    document.querySelectorAll('.psx-file').forEach(el => el.value = '');
+    document.querySelectorAll('.psx-doc-item').forEach(el => el.classList.remove('has-file'));
+  } catch(e) {
+    errEl.textContent = 'Submission failed: ' + e.message;
+    errEl.style.display = 'block';
+  }
+  btn.disabled = false; btn.textContent = '📤 Submit Application';
+};
+
+window.closePSXSuccess = function() {
+  document.getElementById('psxSuccessModal').style.display = 'none';
+};
+
+window.searchPSXApplication = async function() {
+  const cnic = document.getElementById('trackerCnicInput').value.trim().replace(/-/g,'');
+  const resultEl = document.getElementById('trackerResult');
+  if (!cnic || cnic.length < 10) {
+    resultEl.innerHTML = '<div style="color:var(--red);font-size:13px;">Please enter a valid CNIC number.</div>';
+    return;
+  }
+  resultEl.innerHTML = '<div style="color:var(--text3);font-size:13px;">Searching...</div>';
+  try {
+    const snap = await get(ref(db, 'psxApplications'));
+    if (!snap.exists()) { resultEl.innerHTML = '<div style="color:var(--text3);font-size:13px;">No applications found for this CNIC.</div>'; return; }
+    const apps = Object.values(snap.val()).filter(a => (a.cnic||'').replace(/-/g,'') === cnic);
+    if (!apps.length) { resultEl.innerHTML = '<div style="color:var(--text3);font-size:13px;">No applications found for this CNIC.</div>'; return; }
+    const statusColor = { Submitted:'var(--gold)', 'Under Review':'var(--blue)', 'Documents Requested':'var(--red)', Approved:'var(--green)', Rejected:'var(--red)', Completed:'var(--green)' };
+    resultEl.innerHTML = apps.map(a => {
+      const date = a.submittedAt ? new Date(a.submittedAt).toLocaleDateString('en-PK',{year:'numeric',month:'short',day:'numeric'}) : '—';
+      const sc = statusColor[a.status] || 'var(--text2)';
+      return `<div style="background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:16px 18px;margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div style="font-size:12px;color:var(--text3);margin-bottom:2px;">Application Ref</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--gold);">${escHtml(a.refId)}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:12px;color:var(--text3);margin-bottom:2px;">Status</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:14px;color:${sc};font-weight:600;">${escHtml(a.status)}</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12px;color:var(--text2);">
+          <div><span style="color:var(--text3)">Type:</span> ${escHtml(a.accountType)}</div>
+          <div><span style="color:var(--text3)">Name:</span> ${escHtml(a.applicantName)}</div>
+          <div><span style="color:var(--text3)">Submitted:</span> ${date}</div>
+        </div>
+        ${a.adminNote ? `<div style="margin-top:10px;background:rgba(240,180,41,.07);border:1px solid rgba(240,180,41,.2);border-radius:6px;padding:8px 12px;font-size:12px;color:var(--text2);"><strong style="color:var(--gold)">Admin Note:</strong> ${escHtml(a.adminNote)}</div>` : ''}
+      </div>`;
+    }).join('');
+  } catch(e) {
+    resultEl.innerHTML = `<div style="color:var(--red);font-size:13px;">Error: ${escHtml(e.message)}</div>`;
+  }
+};
+
+// Make doc upload items clickable by clicking anywhere on them
+document.querySelectorAll('.psx-doc-item').forEach(item => {
+  item.addEventListener('click', function(e) {
+    if (e.target.tagName !== 'INPUT') {
+      const input = item.querySelector('input[type="file"]');
+      if (input) input.click();
+    }
+  });
+});
 </script>
 </body>
 </html>
