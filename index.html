@@ -128,33 +128,48 @@
   .btn-hero.gold:hover { background:var(--gold2); transform:translateY(-2px); box-shadow:0 8px 24px rgba(240,180,41,.3); }
   .btn-hero.outline { background:transparent; border:1px solid var(--border2); color:var(--text); }
   .btn-hero.outline:hover { border-color:var(--gold); color:var(--gold); }
-  /* ── CANDLESTICK FLOAT CARDS ── */
-  .candle-float-card {
+  /* ── HERO TRADING BG ── */
+  .hero-canvas-bg {
     position:absolute;
-    background:rgba(13,17,23,0.82);
-    border:1px solid var(--border2);
-    border-radius:14px;
-    padding:12px 14px 10px;
+    inset:0;
+    width:100%;
+    height:100%;
+    opacity:.38;
     pointer-events:none;
-    backdrop-filter:blur(12px);
-    box-shadow:0 8px 32px rgba(0,0,0,.45), 0 0 0 1px rgba(240,180,41,.06);
   }
-  .cfc1 { top:7%; left:2%; width:148px; animation:floatCandle1 7s ease-in-out infinite; }
-  .cfc2 { top:9%; right:2%; width:158px; animation:floatCandle2 8s ease-in-out infinite; animation-delay:.8s; }
-  .cfc3 { top:30%; left:4%; width:138px; animation:floatCandle3 6.5s ease-in-out infinite; animation-delay:1.6s; }
-  @keyframes floatCandle1 { 0%,100%{transform:translateY(0) rotate(-.4deg)} 50%{transform:translateY(-12px) rotate(.3deg)} }
-  @keyframes floatCandle2 { 0%,100%{transform:translateY(0) rotate(.3deg)} 50%{transform:translateY(-9px) rotate(-.2deg)} }
-  @keyframes floatCandle3 { 0%,100%{transform:translateY(0) rotate(-.2deg)} 50%{transform:translateY(-14px) rotate(.4deg)} }
-  .cfc-label { font-size:8px; color:var(--text3); letter-spacing:.12em; text-transform:uppercase; margin-bottom:4px; font-family:'JetBrains Mono',monospace; }
-  .cfc-ticker { font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:.06em; color:var(--accent); line-height:1; margin-bottom:2px; }
-  .cfc-change { font-size:9px; font-family:'JetBrains Mono',monospace; margin-bottom:7px; }
-  .cfc-up { color:var(--green); }
-  .cfc-down { color:var(--red); }
-  .cfc-candles-svg { display:block; width:100%; }
-  /* candle body appear animation */
-  @keyframes candleAppear { from{opacity:0;transform:scaleY(0)} to{opacity:1;transform:scaleY(1)} }
-  .cfc-candle-body { transform-origin:center; animation:candleAppear .4s ease forwards; opacity:0; }
-  .cfc-wick { animation:candleAppear .3s ease forwards; opacity:0; }
+  .hero-grid-lines {
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background-image:
+      linear-gradient(rgba(30,50,80,.5) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(30,50,80,.5) 1px, transparent 1px);
+    background-size:60px 40px;
+    mask-image:radial-gradient(ellipse 90% 80% at 50% 50%, black 40%, transparent 100%);
+  }
+  .hero-scan-line {
+    position:absolute;
+    left:0; right:0;
+    height:1px;
+    background:linear-gradient(90deg,transparent,rgba(0,212,255,.6),transparent);
+    animation:scanDown 4s linear infinite;
+    pointer-events:none;
+  }
+  @keyframes scanDown { 0%{top:0%;opacity:0} 10%{opacity:1} 90%{opacity:.6} 100%{top:100%;opacity:0} }
+  .hero-glow-orb {
+    position:absolute;
+    border-radius:50%;
+    pointer-events:none;
+    filter:blur(80px);
+  }
+  #diagCandlesCanvas {
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    z-index:1;
+  }
 
   /* ── AUTH MODAL ── */
   .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:1000; backdrop-filter:blur(4px); align-items:center; justify-content:center; }
@@ -390,13 +405,11 @@
     /* Hero */
     .hero { padding:40px 16px 32px; min-height:auto; }
     .hero-title { font-size:clamp(42px,12vw,72px); }
-    .hero-sub { font-size:14px; max-width:100%; }
-    .hero-stats { gap:20px; }
+    .hero-sub { font-size:14px; max-width:100%; }    .hero-stats { gap:20px; }
     .stat-val { font-size:30px; }
     .hero-btns { flex-direction:column; align-items:stretch; gap:10px; width:100%; max-width:320px; }
     .btn-hero { padding:13px 20px; font-size:14px; width:100%; }
     .market-graph-card { display:none; }
-    .candle-float-card { display:none; }
 
     /* Landing sections */
     .landing-hiw { padding:40px 16px !important; }
@@ -655,8 +668,54 @@
   }
   #btnAgreeConsent:hover:not(:disabled) { background: var(--gold2); }
   #btnAgreeConsent:disabled { opacity: .4; cursor: not-allowed; }
+  /* ── BLOG POSTS ── */
+  .blog-section { margin-bottom:32px; }
+  .blog-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(320px,100%),1fr)); gap:20px; }
+  .blog-card {
+    background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden;
+    display:flex; flex-direction:column; transition:all .2s; text-decoration:none;
+  }
+  .blog-card:hover { border-color:var(--gold); transform:translateY(-2px); box-shadow:0 8px 24px rgba(240,180,41,.1); }
+  .blog-card-img { aspect-ratio:16/9; overflow:hidden; background:var(--bg2); position:relative; }
+  .blog-card-img img { width:100%; height:100%; object-fit:cover; display:block; }
+  .blog-card-img-placeholder { width:100%; height:100%; min-height:140px; display:flex; align-items:center; justify-content:center; font-size:32px; background:linear-gradient(135deg,var(--bg2),var(--bg3)); }
+  .blog-card-body { padding:18px; flex:1; display:flex; flex-direction:column; }
+  .blog-card-meta { display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+  .blog-card-cat { font-size:10px; font-family:'JetBrains Mono',monospace; color:var(--gold); background:rgba(240,180,41,.1); border:1px solid rgba(240,180,41,.2); padding:2px 8px; border-radius:10px; text-transform:uppercase; letter-spacing:.06em; }
+  .blog-card-date { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; }
+  .blog-card-title { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:.04em; color:var(--text); margin-bottom:8px; line-height:1.15; }
+  .blog-card-excerpt { font-size:13px; color:var(--text2); line-height:1.6; flex:1; }
+  .blog-card-footer { display:flex; align-items:center; justify-content:space-between; margin-top:14px; padding-top:12px; border-top:1px solid var(--border); }
+  .blog-card-author { font-size:11px; color:var(--text3); display:flex; align-items:center; gap:6px; }
+  .blog-card-author-dot { width:20px; height:20px; background:linear-gradient(135deg,var(--gold),var(--gold2)); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; color:#000; }
+  .blog-read-more { font-size:11px; font-family:'JetBrains Mono',monospace; color:var(--gold); display:flex; align-items:center; gap:4px; }
+  .no-blog { text-align:center; padding:40px 20px; color:var(--text3); font-size:13px; }
+
+  /* Blog Post Full View */
+  #blogPostPage { display:none; padding:0 0 60px; }
+  .blog-post-wrap { max-width:780px; margin:0 auto; padding:28px 20px 0; }
+  .blog-post-back { background:none; border:1px solid var(--border2); color:var(--text2); padding:8px 18px; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:13px; cursor:pointer; margin-bottom:28px; transition:all .2s; display:inline-flex; align-items:center; gap:6px; }
+  .blog-post-back:hover { border-color:var(--gold); color:var(--gold); }
+  .blog-post-hero-img { width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:12px; margin-bottom:28px; display:block; }
+  .blog-post-cat { font-size:11px; font-family:'JetBrains Mono',monospace; color:var(--gold); background:rgba(240,180,41,.1); border:1px solid rgba(240,180,41,.2); padding:3px 10px; border-radius:10px; text-transform:uppercase; letter-spacing:.08em; display:inline-block; margin-bottom:14px; }
+  .blog-post-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(32px,6vw,52px); letter-spacing:.03em; line-height:1.05; margin-bottom:16px; }
+  .blog-post-meta { display:flex; align-items:center; gap:16px; font-size:12px; color:var(--text3); font-family:'JetBrains Mono',monospace; margin-bottom:28px; flex-wrap:wrap; }
+  .blog-post-body { font-size:15px; line-height:1.8; color:var(--text2); }
+  .blog-post-body h2 { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:.04em; color:var(--text); margin:32px 0 12px; }
+  .blog-post-body h3 { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:.03em; color:var(--text); margin:24px 0 10px; }
+  .blog-post-body p { margin-bottom:16px; }
+  .blog-post-body ul, .blog-post-body ol { margin:0 0 16px 22px; }
+  .blog-post-body li { margin-bottom:6px; }
+  .blog-post-body strong { color:var(--text); }
+  .blog-post-body a { color:var(--gold); text-decoration:underline; }
+  .blog-post-body blockquote { border-left:3px solid var(--gold); padding:12px 18px; background:rgba(240,180,41,.05); border-radius:0 8px 8px 0; margin:20px 0; font-style:italic; color:var(--text); }
+  .blog-post-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:32px; padding-top:20px; border-top:1px solid var(--border); }
+  .blog-post-tag { font-size:11px; font-family:'JetBrains Mono',monospace; color:var(--accent); background:rgba(0,212,255,.07); border:1px solid rgba(0,212,255,.15); padding:3px 10px; border-radius:10px; }
+  @media(max-width:600px) {
+    .blog-grid { grid-template-columns:1fr; }
+    .blog-post-title { font-size:clamp(26px,8vw,36px); }
+  }
 </style>
-</head>
 <body>
 
 <!-- TICKER -->
@@ -693,90 +752,16 @@
 <!-- LANDING PAGE -->
 <div id="landingPage">
   <div class="hero">
-    <!-- Animated floating candlestick cards -->
-    <!-- Card 1: AAPL bullish -->
-    <div class="candle-float-card cfc1">
-      <div class="cfc-label">NASDAQ</div>
-      <div class="cfc-ticker">AAPL</div>
-      <div class="cfc-change cfc-up">▲ +2.34%</div>
-      <svg class="cfc-candles-svg" height="48" viewBox="0 0 120 48" xmlns="http://www.w3.org/2000/svg">
-        <!-- Candle 1 bearish -->
-        <line class="cfc-wick" x1="10" y1="8" x2="10" y2="38" stroke="#ff4757" stroke-width="1" style="animation-delay:.1s"/>
-        <rect class="cfc-candle-body" x="5" y="16" width="10" height="14" fill="#ff4757" rx="1" style="animation-delay:.15s"/>
-        <!-- Candle 2 bullish -->
-        <line class="cfc-wick" x1="28" y1="12" x2="28" y2="36" stroke="#00e5a0" stroke-width="1" style="animation-delay:.3s"/>
-        <rect class="cfc-candle-body" x="23" y="19" width="10" height="12" fill="#00e5a0" rx="1" style="animation-delay:.35s"/>
-        <!-- Candle 3 bearish -->
-        <line class="cfc-wick" x1="46" y1="10" x2="46" y2="34" stroke="#ff4757" stroke-width="1" style="animation-delay:.5s"/>
-        <rect class="cfc-candle-body" x="41" y="16" width="10" height="10" fill="#ff4757" rx="1" style="animation-delay:.55s"/>
-        <!-- Candle 4 bullish -->
-        <line class="cfc-wick" x1="64" y1="6" x2="64" y2="32" stroke="#00e5a0" stroke-width="1" style="animation-delay:.7s"/>
-        <rect class="cfc-candle-body" x="59" y="11" width="10" height="16" fill="#00e5a0" rx="1" style="animation-delay:.75s"/>
-        <!-- Candle 5 bullish -->
-        <line class="cfc-wick" x1="82" y1="4" x2="82" y2="26" stroke="#00e5a0" stroke-width="1" style="animation-delay:.9s"/>
-        <rect class="cfc-candle-body" x="77" y="8" width="10" height="14" fill="#00e5a0" rx="1" style="animation-delay:.95s"/>
-        <!-- Candle 6 bullish -->
-        <line class="cfc-wick" x1="100" y1="2" x2="100" y2="22" stroke="#00e5a0" stroke-width="1" style="animation-delay:1.1s"/>
-        <rect class="cfc-candle-body" x="95" y="5" width="10" height="13" fill="#00e5a0" rx="1" style="animation-delay:1.15s"/>
-      </svg>
-    </div>
+    <!-- Diagonal animated candlestick background -->
+    <canvas id="diagCandlesCanvas"></canvas>
+    <!-- Animated trading chart background -->
+    <canvas id="heroChartCanvas" class="hero-canvas-bg"></canvas>
+    <div class="hero-grid-lines"></div>
+    <div class="hero-scan-line"></div>
+    <!-- Glow orbs -->
+    <div class="hero-glow-orb" style="width:500px;height:500px;top:-120px;left:50%;transform:translateX(-50%);background:radial-gradient(circle,rgba(240,180,41,.12) 0%,transparent 70%);"></div>
+    <div class="hero-glow-orb" style="width:300px;height:300px;bottom:-60px;right:5%;background:radial-gradient(circle,rgba(0,212,255,.09) 0%,transparent 70%);"></div>
 
-    <!-- Card 2: TSLA bearish -->
-    <div class="candle-float-card cfc2">
-      <div class="cfc-label">NASDAQ</div>
-      <div class="cfc-ticker">TSLA</div>
-      <div class="cfc-change cfc-down">▼ -1.87%</div>
-      <svg class="cfc-candles-svg" height="48" viewBox="0 0 128 48" xmlns="http://www.w3.org/2000/svg">
-        <!-- Candle 1 bullish -->
-        <line class="cfc-wick" x1="10" y1="6" x2="10" y2="26" stroke="#00e5a0" stroke-width="1" style="animation-delay:.2s"/>
-        <rect class="cfc-candle-body" x="5" y="10" width="10" height="12" fill="#00e5a0" rx="1" style="animation-delay:.25s"/>
-        <!-- Candle 2 bullish -->
-        <line class="cfc-wick" x1="28" y1="4" x2="28" y2="24" stroke="#00e5a0" stroke-width="1" style="animation-delay:.4s"/>
-        <rect class="cfc-candle-body" x="23" y="8" width="10" height="12" fill="#00e5a0" rx="1" style="animation-delay:.45s"/>
-        <!-- Candle 3 bearish -->
-        <line class="cfc-wick" x1="46" y1="8" x2="46" y2="32" stroke="#ff4757" stroke-width="1" style="animation-delay:.6s"/>
-        <rect class="cfc-candle-body" x="41" y="14" width="10" height="13" fill="#ff4757" rx="1" style="animation-delay:.65s"/>
-        <!-- Candle 4 bearish -->
-        <line class="cfc-wick" x1="64" y1="14" x2="64" y2="38" stroke="#ff4757" stroke-width="1" style="animation-delay:.8s"/>
-        <rect class="cfc-candle-body" x="59" y="18" width="10" height="15" fill="#ff4757" rx="1" style="animation-delay:.85s"/>
-        <!-- Candle 5 bearish -->
-        <line class="cfc-wick" x1="82" y1="20" x2="82" y2="44" stroke="#ff4757" stroke-width="1" style="animation-delay:1s"/>
-        <rect class="cfc-candle-body" x="77" y="24" width="10" height="14" fill="#ff4757" rx="1" style="animation-delay:1.05s"/>
-        <!-- Candle 6 bullish small -->
-        <line class="cfc-wick" x1="100" y1="22" x2="100" y2="42" stroke="#00e5a0" stroke-width="1" style="animation-delay:1.2s"/>
-        <rect class="cfc-candle-body" x="95" y="26" width="10" height="10" fill="#00e5a0" rx="1" style="animation-delay:1.25s"/>
-        <!-- Candle 7 bearish -->
-        <line class="cfc-wick" x1="118" y1="24" x2="118" y2="46" stroke="#ff4757" stroke-width="1" style="animation-delay:1.4s"/>
-        <rect class="cfc-candle-body" x="113" y="28" width="10" height="13" fill="#ff4757" rx="1" style="animation-delay:1.45s"/>
-      </svg>
-    </div>
-
-    <!-- Card 3: SPY mixed/bullish -->
-    <div class="candle-float-card cfc3">
-      <div class="cfc-label">S&amp;P 500</div>
-      <div class="cfc-ticker">SPY</div>
-      <div class="cfc-change cfc-up">▲ +0.91%</div>
-      <svg class="cfc-candles-svg" height="48" viewBox="0 0 110 48" xmlns="http://www.w3.org/2000/svg">
-        <!-- Candle 1 -->
-        <line class="cfc-wick" x1="10" y1="20" x2="10" y2="40" stroke="#ff4757" stroke-width="1" style="animation-delay:.15s"/>
-        <rect class="cfc-candle-body" x="5" y="24" width="10" height="11" fill="#ff4757" rx="1" style="animation-delay:.2s"/>
-        <!-- Candle 2 -->
-        <line class="cfc-wick" x1="28" y1="18" x2="28" y2="38" stroke="#00e5a0" stroke-width="1" style="animation-delay:.35s"/>
-        <rect class="cfc-candle-body" x="23" y="22" width="10" height="12" fill="#00e5a0" rx="1" style="animation-delay:.4s"/>
-        <!-- Candle 3 -->
-        <line class="cfc-wick" x1="46" y1="12" x2="46" y2="34" stroke="#00e5a0" stroke-width="1" style="animation-delay:.55s"/>
-        <rect class="cfc-candle-body" x="41" y="16" width="10" height="13" fill="#00e5a0" rx="1" style="animation-delay:.6s"/>
-        <!-- Candle 4 -->
-        <line class="cfc-wick" x1="64" y1="14" x2="64" y2="36" stroke="#ff4757" stroke-width="1" style="animation-delay:.75s"/>
-        <rect class="cfc-candle-body" x="59" y="18" width="10" height="12" fill="#ff4757" rx="1" style="animation-delay:.8s"/>
-        <!-- Candle 5 -->
-        <line class="cfc-wick" x1="82" y1="8" x2="82" y2="28" stroke="#00e5a0" stroke-width="1" style="animation-delay:.95s"/>
-        <rect class="cfc-candle-body" x="77" y="12" width="10" height="12" fill="#00e5a0" rx="1" style="animation-delay:1s"/>
-        <!-- Candle 6 -->
-        <line class="cfc-wick" x1="100" y1="4" x2="100" y2="24" stroke="#00e5a0" stroke-width="1" style="animation-delay:1.15s"/>
-        <rect class="cfc-candle-body" x="95" y="8" width="10" height="13" fill="#00e5a0" rx="1" style="animation-delay:1.2s"/>
-      </svg>
-    </div>
 
     <div class="hero-label" id="heroLabel">🔥 Premium Trading Signals</div>
     <h1 class="hero-title" id="heroTitle">TRADE <span class="gold" id="heroTitleGold">SMARTER</span><br><span class="dim" id="heroTitleDim">NOT HARDER</span></h1>
@@ -841,10 +826,17 @@
       </div>
     </div>
   </div>
+  <!-- BLOG SECTION (Public Landing) -->
+  <div id="landingBlogSection" style="padding:0 24px 60px;max-width:1100px;margin:0 auto;display:none;" class="blog-section">
+    <div style="text-align:center;margin-bottom:36px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);letter-spacing:.15em;text-transform:uppercase;margin-bottom:12px;">Insights & Analysis</div>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,5vw,52px);letter-spacing:.04em;">TRADING <span style="color:var(--gold)">INSIGHTS</span></h2>
+      <p style="font-size:14px;color:var(--text2);max-width:480px;margin:12px auto 0;line-height:1.6;">In-depth analysis, trading strategies, and market insights to help you trade smarter.</p>
+    </div>
+    <div class="blog-grid" id="landingBlogGrid"><div class="no-blog">Loading posts...</div></div>
+  </div>
 
 </div>
-
-<!-- DASHBOARD -->
 <div id="dashboard">
   <!-- Win Rate Card -->
   <div class="win-card">
@@ -986,6 +978,14 @@
     </div>
     <div class="videos-grid" id="videosFeed"></div>
   </div>
+
+  <!-- Blog Posts (Dashboard) -->
+  <div class="blog-section" id="dashBlogSection" style="display:none;">
+    <div class="section-header" style="margin-bottom:16px;">
+      <div class="section-title">✍️ BLOG & INSIGHTS</div>
+    </div>
+    <div class="blog-grid" id="dashBlogGrid"></div>
+  </div>
 </div>
 
 <!-- PSX ACCOUNT OPENING PAGE -->
@@ -1114,6 +1114,16 @@
   </div>
 </div>
 
+<!-- BLOG POST FULL VIEW -->
+<div id="blogPostPage">
+  <div class="blog-post-wrap">
+    <button class="blog-post-back" onclick="closeBlogPost()">← Back</button>
+    <article id="blogPostContent" itemscope itemtype="https://schema.org/BlogPosting">
+      <meta itemprop="publisher" content="Trade With Afrasiab">
+    </article>
+  </div>
+</div>
+
 <!-- PSX Success Modal -->
 <div id="psxSuccessModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:3000;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
   <div style="background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:40px 36px;width:100%;max-width:440px;text-align:center;animation:modalIn .3s ease;">
@@ -1165,6 +1175,11 @@
     ⚠️ <strong style="color:var(--text2)">Disclaimer:</strong> The content on "Trade With Afrasiab" is for educational purposes only. Stock market investing involves significant risk of financial loss. I am not a registered financial advisor. No content here guarantees profit or specific returns. Past performance does not predict future results. Always conduct your own research or consult a professional before investing.
   </div>
   <div id="footerContent">© 2025 Trade With Afrasiab — All Rights Reserved</div>
+  <div id="footerContactSocial" style="margin-top:14px;display:none;flex-wrap:wrap;justify-content:center;align-items:center;gap:12px;font-size:12px;color:var(--text3);">
+    <span id="footerWhatsapp" style="display:none;align-items:center;gap:5px;"></span>
+    <span id="footerContact" style="display:none;align-items:center;gap:5px;"></span>
+    <span id="footerSocialLinks" style="display:none;align-items:center;gap:8px;"></span>
+  </div>
 </div>
 
 <!-- DISCLAIMER CONSENT MODAL -->
@@ -1478,6 +1493,7 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById('dashboard').style.display = 'none';
     document.getElementById('consentModal').classList.remove('active');
     loadPublicStats();
+    listenBlogPosts(false);
   }
 });
 
@@ -1562,6 +1578,47 @@ onValue(ref(db, 'siteContent/footer'), (snap) => {
   const el = document.getElementById('footerContent');
   if (snap.exists() && snap.val()) el.textContent = snap.val();
   else el.textContent = '© 2025 Trade With Afrasiab — All Rights Reserved';
+});
+
+// ── CONTACT & SOCIAL FOOTER ──
+onValue(ref(db, 'siteContent'), (snap) => {
+  const d = snap.exists() ? snap.val() : {};
+  const waEl = document.getElementById('footerWhatsapp');
+  const ctEl = document.getElementById('footerContact');
+  const slEl = document.getElementById('footerSocialLinks');
+  const wrap = document.getElementById('footerContactSocial');
+  const socialPlatforms = [
+    {key:'facebook', icon:'📘', label:'Facebook'},
+    {key:'instagram', icon:'📸', label:'Instagram'},
+    {key:'youtube', icon:'▶️', label:'YouTube'},
+    {key:'twitter', icon:'🐦', label:'Twitter'},
+    {key:'tiktok', icon:'🎵', label:'TikTok'},
+    {key:'telegram', icon:'✈️', label:'Telegram'}
+  ];
+  if (waEl) {
+    if (d.whatsapp) {
+      const num = d.whatsapp.replace(/\s/g,'');
+      waEl.innerHTML = `💬 <a href="https://wa.me/${num.replace(/\+/,'')}" target="_blank" rel="noopener noreferrer" style="color:var(--green);text-decoration:none;">WhatsApp: ${d.whatsapp}</a>`;
+      waEl.style.display = 'inline-flex';
+    } else waEl.style.display = 'none';
+  }
+  if (ctEl) {
+    if (d.contact) {
+      ctEl.innerHTML = `📞 <a href="tel:${d.contact}" style="color:var(--text2);text-decoration:none;">${d.contact}</a>`;
+      ctEl.style.display = 'inline-flex';
+    } else ctEl.style.display = 'none';
+  }
+  if (slEl) {
+    const links = socialPlatforms.filter(p => d[p.key]);
+    if (links.length) {
+      slEl.innerHTML = links.map(p => `<a href="${d[p.key]}" target="_blank" rel="noopener noreferrer" style="color:var(--text2);text-decoration:none;transition:color .2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text2)'">${p.icon} ${p.label}</a>`).join('');
+      slEl.style.display = 'inline-flex';
+    } else slEl.style.display = 'none';
+  }
+  if (wrap) {
+    const hasAny = d.whatsapp || d.contact || socialPlatforms.some(p => d[p.key]);
+    wrap.style.display = hasAny ? 'flex' : 'none';
+  }
 });
 
 // ── LOGO ──
@@ -1652,6 +1709,7 @@ function initDashboard() {
   listenAnnouncements();
   listenVotingPools();
   listenVideos();
+  listenBlogPosts(true);
 }
 
 function listenAnnouncements() {
@@ -1962,7 +2020,110 @@ function escHtml(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ── PSX ACCOUNT OPENING ──
+// ── BLOG POSTS ──
+let _blogUnsubscribe = null;
+let _blogOrigin = null; // 'landing' | 'dashboard'
+
+function listenBlogPosts(isDashboard) {
+  onValue(ref(db, 'blogPosts'), (snap) => {
+    const posts = snap.exists()
+      ? Object.entries(snap.val()).map(([k,v])=>({id:k,...v}))
+          .filter(p=>p.status==='published')
+          .sort((a,b)=>b.createdAt-a.createdAt)
+      : [];
+    renderBlogGrid('landingBlogGrid', posts, false);
+    if (isDashboard) renderBlogGrid('dashBlogGrid', posts, true);
+    const dashSection = document.getElementById('dashBlogSection');
+    if (dashSection) dashSection.style.display = isDashboard && posts.length ? 'block' : 'none';
+    const landSection = document.getElementById('landingBlogSection');
+    if (landSection) landSection.style.display = posts.length ? 'block' : 'none';
+  });
+}
+
+function renderBlogGrid(containerId, posts, isDashboard) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  if (!posts.length) { container.innerHTML = `<div class="no-blog">No posts yet.</div>`; return; }
+  container.innerHTML = posts.slice(0,6).map(p => {
+    const date = p.createdAt ? new Date(p.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+    const authorInitials = (p.author||'A').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    return `<article class="blog-card" onclick="openBlogPost('${p.id}','${isDashboard?'dashboard':'landing'}')" style="cursor:pointer;" itemscope itemtype="https://schema.org/BlogPosting">
+      <meta itemprop="headline" content="${escHtml(p.title)}">
+      <meta itemprop="datePublished" content="${p.createdAt ? new Date(p.createdAt).toISOString() : ''}">
+      <meta itemprop="author" content="${escHtml(p.author||'Afrasiab')}">
+      ${p.metaDesc ? `<meta itemprop="description" content="${escHtml(p.metaDesc)}">` : ''}
+      <div class="blog-card-img">
+        ${p.image ? `<img src="${escHtml(p.image)}" alt="${escHtml(p.title)}" loading="lazy">` : `<div class="blog-card-img-placeholder">📊</div>`}
+      </div>
+      <div class="blog-card-body">
+        <div class="blog-card-meta">
+          ${p.category ? `<span class="blog-card-cat">${escHtml(p.category)}</span>` : ''}
+          <span class="blog-card-date">${date}</span>
+        </div>
+        <h3 class="blog-card-title" itemprop="name">${escHtml(p.title)}</h3>
+        <p class="blog-card-excerpt" itemprop="abstract">${escHtml(p.excerpt)}</p>
+        <div class="blog-card-footer">
+          <div class="blog-card-author">
+            <div class="blog-card-author-dot">${authorInitials}</div>
+            <span>${escHtml(p.author||'Afrasiab')}</span>
+          </div>
+          <span class="blog-read-more">Read more →</span>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+}
+
+window.openBlogPost = function(id, origin) {
+  onValue(ref(db, `blogPosts/${id}`), (snap) => {
+    if (!snap.exists()) return;
+    const p = {...snap.val(), id};
+    _blogOrigin = origin;
+    const date = p.createdAt ? new Date(p.createdAt).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : '';
+    const updatedDate = p.updatedAt ? new Date(p.updatedAt).toISOString() : '';
+    const tags = p.tags ? p.tags.split(',').filter(t=>t.trim()) : [];
+    document.getElementById('blogPostContent').innerHTML = `
+      ${p.metaTitle ? `<title>${escHtml(p.metaTitle)}</title>` : ''}
+      ${p.image ? `<img class="blog-post-hero-img" src="${escHtml(p.image)}" alt="${escHtml(p.title)}" itemprop="image">` : ''}
+      ${p.category ? `<span class="blog-post-cat" itemprop="articleSection">${escHtml(p.category)}</span>` : ''}
+      <h1 class="blog-post-title" itemprop="headline">${escHtml(p.title)}</h1>
+      <div class="blog-post-meta">
+        <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="name">✍ ${escHtml(p.author||'Afrasiab')}</span></span>
+        ${date ? `<span itemprop="datePublished" content="${p.createdAt ? new Date(p.createdAt).toISOString() : ''}">📅 ${date}</span>` : ''}
+        ${p.keywords ? `<span>🏷 ${escHtml(p.keywords)}</span>` : ''}
+      </div>
+      <div class="blog-post-body" itemprop="articleBody">${p.content}</div>
+      ${tags.length ? `<div class="blog-post-tags">${tags.map(t=>`<span class="blog-post-tag">#${escHtml(t.trim())}</span>`).join('')}</div>` : ''}
+      <script type="application/ld+json">${JSON.stringify({
+        "@context":"https://schema.org",
+        "@type":"BlogPosting",
+        "headline": p.title,
+        "description": p.metaDesc || p.excerpt,
+        "datePublished": p.createdAt ? new Date(p.createdAt).toISOString() : '',
+        "dateModified": updatedDate || (p.createdAt ? new Date(p.createdAt).toISOString() : ''),
+        "author": {"@type":"Person","name": p.author || "Afrasiab"},
+        "publisher": {"@type":"Organization","name":"Trade With Afrasiab"},
+        "keywords": p.keywords || ''
+      })}<\/script>`;
+    if (p.metaTitle) document.title = p.metaTitle;
+    else if (p.title) document.title = p.title + ' — Trade With Afrasiab';
+    document.getElementById('landingPage').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('blogPostPage').style.display = 'block';
+    window.scrollTo(0,0);
+  }, { onlyOnce: true });
+};
+
+window.closeBlogPost = function() {
+  document.getElementById('blogPostPage').style.display = 'none';
+  document.title = 'Trade With Afrasiab — Premium Trading Signals';
+  if (_blogOrigin === 'dashboard') {
+    document.getElementById('dashboard').style.display = 'block';
+  } else {
+    document.getElementById('landingPage').style.display = 'block';
+  }
+  window.scrollTo(0,0);
+};
 
 let psxSelectedAccountType = null;
 let psxDocData = {}; // stores base64 data for each document
@@ -2197,6 +2358,430 @@ document.querySelectorAll('.psx-doc-item').forEach(item => {
     }
   });
 });
+</script>
+
+<script>
+(function() {
+  const canvas = document.getElementById('heroChartCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  const GREEN = '#00e5a0';
+  const RED = '#ff4757';
+  const GOLD = '#f0b429';
+  const ACCENT = '#00d4ff';
+
+  let W, H, candles = [], linePoints = [], frame = 0, newCandleTimer = 0;
+
+  // Floating candle particles
+  const particles = [];
+
+  function spawnParticle() {
+    const bull = Math.random() > 0.42;
+    const bodyH = 8 + Math.random() * 18;
+    const bodyW = 5 + Math.random() * 5;
+    const wickT = 4 + Math.random() * 8;
+    const wickB = 4 + Math.random() * 8;
+    particles.push({
+      x: W * 0.05 + Math.random() * W * 0.9,
+      y: H + 20,
+      vy: -(0.4 + Math.random() * 0.7),
+      vx: (Math.random() - 0.5) * 0.3,
+      alpha: 0,
+      fadeIn: true,
+      bodyH, bodyW, wickT, wickB,
+      bull,
+      color: bull ? GREEN : RED,
+      scale: 0.6 + Math.random() * 0.9,
+      life: 0,
+      maxLife: 180 + Math.random() * 120,
+    });
+  }
+
+  function resize() {
+    W = canvas.width = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+
+  function randBetween(a, b) { return a + Math.random() * (b - a); }
+
+  function generateCandles() {
+    candles = [];
+    const count = Math.floor(W / 22);
+    let price = 100;
+    for (let i = 0; i < count; i++) {
+      const open = price;
+      const change = randBetween(-6, 7);
+      const close = Math.max(20, price + change);
+      const high = Math.max(open, close) + randBetween(1, 5);
+      const low = Math.min(open, close) - randBetween(1, 5);
+      candles.push({ open, close, high, low });
+      price = close;
+    }
+    buildLine();
+  }
+
+  function buildLine() {
+    linePoints = candles.map((c, i) => ({ x: i, y: (c.open + c.close) / 2 }));
+  }
+
+  function drawChart() {
+    ctx.clearRect(0, 0, W, H);
+
+    if (!candles.length) return;
+    const count = candles.length;
+    const cw = W / count;
+    const prices = candles.flatMap(c => [c.high, c.low]);
+    const minP = Math.min(...prices);
+    const maxP = Math.max(...prices);
+    const range = maxP - minP || 1;
+    const padT = H * 0.12, padB = H * 0.12;
+    const chartH = H - padT - padB;
+
+    function py(p) { return padT + chartH - ((p - minP) / range) * chartH; }
+    function px(i) { return i * cw + cw * 0.5; }
+
+    // MA line
+    ctx.save();
+    ctx.beginPath();
+    const maLen = 5;
+    for (let i = maLen; i < count; i++) {
+      let sum = 0;
+      for (let j = i - maLen; j <= i; j++) sum += (candles[j].open + candles[j].close) / 2;
+      const ma = sum / (maLen + 1);
+      const x = px(i), y = py(ma);
+      i === maLen ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = GOLD;
+    ctx.lineWidth = 1.5;
+    ctx.shadowColor = GOLD;
+    ctx.shadowBlur = 8;
+    ctx.globalAlpha = 0.55;
+    ctx.stroke();
+    ctx.restore();
+
+    // Area fill
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(px(0), py(linePoints[0].y));
+    for (let i = 1; i < count; i++) {
+      const x0 = px(i - 1), y0 = py(linePoints[i - 1].y);
+      const x1 = px(i), y1 = py(linePoints[i].y);
+      const cpx = (x0 + x1) / 2;
+      ctx.bezierCurveTo(cpx, y0, cpx, y1, x1, y1);
+    }
+    ctx.lineTo(px(count - 1), H);
+    ctx.lineTo(px(0), H);
+    ctx.closePath();
+    const grad = ctx.createLinearGradient(0, padT, 0, H);
+    grad.addColorStop(0, 'rgba(0,212,255,0.18)');
+    grad.addColorStop(1, 'rgba(0,212,255,0.00)');
+    ctx.fillStyle = grad;
+    ctx.globalAlpha = 1;
+    ctx.fill();
+    ctx.restore();
+
+    // Price line
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(px(0), py(linePoints[0].y));
+    for (let i = 1; i < count; i++) {
+      const x0 = px(i - 1), y0 = py(linePoints[i - 1].y);
+      const x1 = px(i), y1 = py(linePoints[i].y);
+      const cpx = (x0 + x1) / 2;
+      ctx.bezierCurveTo(cpx, y0, cpx, y1, x1, y1);
+    }
+    ctx.strokeStyle = ACCENT;
+    ctx.lineWidth = 2;
+    ctx.shadowColor = ACCENT;
+    ctx.shadowBlur = 12;
+    ctx.globalAlpha = 0.75;
+    ctx.stroke();
+    ctx.restore();
+
+    // Candles
+    const bodyW = Math.max(3, cw * 0.5);
+    candles.forEach((c, i) => {
+      const bull = c.close >= c.open;
+      const color = bull ? GREEN : RED;
+      const x = px(i);
+      ctx.save();
+      ctx.globalAlpha = 0.7;
+      ctx.beginPath();
+      ctx.moveTo(x, py(c.high));
+      ctx.lineTo(x, py(c.low));
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1;
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 3;
+      ctx.stroke();
+      const bodyTop = Math.min(py(c.open), py(c.close));
+      const bodyHeight = Math.max(2, Math.abs(py(c.open) - py(c.close)));
+      ctx.fillStyle = color;
+      ctx.shadowBlur = 6;
+      ctx.fillRect(x - bodyW / 2, bodyTop, bodyW, bodyHeight);
+      ctx.restore();
+    });
+
+    // Live dot
+    const last = candles[count - 1];
+    const lx = px(count - 1);
+    const ly = py((last.open + last.close) / 2);
+    const pulse = 0.5 + 0.5 * Math.sin(frame * 0.08);
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(lx, ly, 4 + pulse * 3, 0, Math.PI * 2);
+    ctx.fillStyle = ACCENT;
+    ctx.globalAlpha = 0.25 * pulse;
+    ctx.shadowColor = ACCENT;
+    ctx.shadowBlur = 20;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(lx, ly, 3, 0, Math.PI * 2);
+    ctx.fillStyle = ACCENT;
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 10;
+    ctx.fill();
+    ctx.restore();
+
+    // Floating candle particles
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.life++;
+      p.x += p.vx;
+      p.y += p.vy;
+
+      const fadeFrames = 30;
+      if (p.fadeIn) {
+        p.alpha = Math.min(1, p.life / fadeFrames);
+        if (p.alpha >= 1) p.fadeIn = false;
+      } else if (p.life > p.maxLife - fadeFrames) {
+        p.alpha = Math.max(0, (p.maxLife - p.life) / fadeFrames);
+      }
+
+      if (p.life >= p.maxLife) { particles.splice(i, 1); continue; }
+
+      ctx.save();
+      ctx.globalAlpha = p.alpha * 0.72;
+      ctx.translate(p.x, p.y);
+      ctx.scale(p.scale, p.scale);
+
+      const bh = p.bodyH, bw = p.bodyW;
+      const wt = p.wickT, wb = p.wickB;
+
+      // Wick
+      ctx.beginPath();
+      ctx.moveTo(0, -(bh / 2) - wt);
+      ctx.lineTo(0, (bh / 2) + wb);
+      ctx.strokeStyle = p.color;
+      ctx.lineWidth = 1.2;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 6;
+      ctx.stroke();
+
+      // Body
+      ctx.fillStyle = p.color;
+      ctx.shadowBlur = 10;
+      ctx.fillRect(-bw / 2, -bh / 2, bw, bh);
+
+      ctx.restore();
+    }
+  }
+
+  let particleSpawnTimer = 0;
+
+  function tick() {
+    frame++;
+    newCandleTimer++;
+    particleSpawnTimer++;
+
+    if (newCandleTimer >= 90) {
+      newCandleTimer = 0;
+      const last = candles[candles.length - 1];
+      const price = last ? last.close : 100;
+      const change = randBetween(-5, 6);
+      const close = Math.max(20, price + change);
+      const high = Math.max(price, close) + randBetween(1, 4);
+      const low = Math.min(price, close) - randBetween(1, 4);
+      candles.push({ open: price, close, high, low });
+      if (candles.length > Math.floor(W / 22) + 10) candles.shift();
+      buildLine();
+    }
+
+    if (particleSpawnTimer >= 28) {
+      particleSpawnTimer = 0;
+      spawnParticle();
+      if (Math.random() > 0.55) spawnParticle();
+    }
+
+    drawChart();
+    requestAnimationFrame(tick);
+  }
+
+  window.addEventListener('resize', () => { resize(); generateCandles(); });
+  resize();
+  generateCandles();
+  // Pre-seed some particles
+  for (let i = 0; i < 8; i++) {
+    spawnParticle();
+    const p = particles[particles.length - 1];
+    p.y = H * 0.1 + Math.random() * H * 0.8;
+    p.life = Math.floor(Math.random() * p.maxLife * 0.7);
+    p.alpha = 0.3 + Math.random() * 0.5;
+    p.fadeIn = false;
+  }
+  tick();
+})();
+</script>
+<!-- Diagonal candlestick background animation -->
+<script>
+(function(){
+  const canvas = document.getElementById('diagCandlesCanvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H;
+
+  function resize(){
+    const hero = canvas.parentElement;
+    W = canvas.width = hero.offsetWidth;
+    H = canvas.height = hero.offsetHeight;
+  }
+
+  // Each candle particle travels bottom-left to top-right
+  const CANDLES = [];
+  const COUNT = 18;
+
+  function randBetween(a,b){ return a + Math.random()*(b-a); }
+
+  function makeCandle(){
+    // Spawn along the bottom or left edge, travel diagonally up-right
+    const edge = Math.random() < 0.6 ? 'bottom' : 'left';
+    let x, y;
+    if(edge === 'bottom'){
+      x = randBetween(-W*0.1, W*0.7);
+      y = randBetween(H*0.7, H*1.1);
+    } else {
+      x = randBetween(-W*0.1, W*0.1);
+      y = randBetween(H*0.2, H*1.0);
+    }
+    const scale = randBetween(0.55, 1.35);
+    const speed = randBetween(0.28, 0.65);
+    const angle = randBetween(-0.55, -0.35); // upward-right in radians (~-20 to -30 deg from horizontal)
+    const bodyH = randBetween(16, 36) * scale;
+    const bodyW = randBetween(9, 18) * scale;
+    const wickT = randBetween(8, 20) * scale;
+    const wickB = randBetween(6, 14) * scale;
+    const bull = Math.random() > 0.38;
+    const isGreen = Math.random() < 0.70;
+    const color = isGreen
+      ? `rgb(${Math.floor(randBetween(0,60))},${Math.floor(randBetween(200,240))},${Math.floor(randBetween(80,160))})`
+      : `rgb(${Math.floor(randBetween(200,255))},${Math.floor(randBetween(30,70))},${Math.floor(randBetween(30,70))})`;
+    const alpha = randBetween(0.18, 0.52);
+    const rotation = randBetween(-0.18, 0.18);
+    const life = 0;
+    const maxLife = randBetween(260, 480);
+    return {x, y, vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed, scale, bodyH, bodyW, wickT, wickB, bull, color, alpha, rotation, life, maxLife, fadeIn:true};
+  }
+
+  function initCandles(){
+    CANDLES.length = 0;
+    for(let i=0;i<COUNT;i++){
+      const c = makeCandle();
+      // Spread initial positions across the diagonal
+      c.x = randBetween(-W*0.05, W*0.9);
+      c.y = randBetween(H*0.0, H*1.05);
+      c.life = Math.floor(Math.random()*c.maxLife*0.8);
+      c.fadeIn = false;
+      CANDLES.push(c);
+    }
+  }
+
+  function drawCandle(c){
+    const fadeFr = 40;
+    let alpha = c.alpha;
+    if(c.fadeIn){
+      alpha = c.alpha * Math.min(1, c.life/fadeFr);
+    } else if(c.life > c.maxLife - fadeFr){
+      alpha = c.alpha * Math.max(0, (c.maxLife - c.life)/fadeFr);
+    }
+    if(alpha < 0.01) return;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(c.x, c.y);
+    ctx.rotate(c.rotation);
+
+    const color = c.color;
+    const bh = c.bodyH, bw = c.bodyW;
+
+    ctx.beginPath();
+    ctx.moveTo(0, -(bh/2) - c.wickT);
+    ctx.lineTo(0, (bh/2) + c.wickB);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5 * c.scale;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 4;
+    ctx.stroke();
+
+    ctx.fillStyle = color;
+    ctx.shadowBlur = 8;
+    if(c.bull){
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5 * c.scale;
+      ctx.strokeRect(-bw/2, -bh/2, bw, bh);
+    } else {
+      ctx.fillRect(-bw/2, -bh/2, bw, bh);
+    }
+
+    ctx.restore();
+  }
+
+  let raf;
+  function tick(){
+    ctx.clearRect(0,0,W,H);
+
+    for(let i=CANDLES.length-1;i>=0;i--){
+      const c = CANDLES[i];
+      c.life++;
+      c.x += c.vx;
+      c.y += c.vy;
+      if(c.fadeIn && c.life > 40) c.fadeIn = false;
+      if(c.life >= c.maxLife){
+        CANDLES[i] = makeCandle();
+        CANDLES[i].fadeIn = true;
+        CANDLES[i].life = 0;
+      }
+      drawCandle(c);
+    }
+
+    raf = requestAnimationFrame(tick);
+  }
+
+  function start(){
+    resize();
+    initCandles();
+    if(raf) cancelAnimationFrame(raf);
+    tick();
+  }
+
+  window.addEventListener('resize', ()=>{ resize(); initCandles(); });
+
+  // Start when landing page is shown — observe display changes
+  const landing = document.getElementById('landingPage');
+  if(landing){
+    const obs = new MutationObserver(()=>{
+      if(landing.style.display !== 'none' && landing.offsetParent !== null){
+        start();
+        obs.disconnect();
+      }
+    });
+    obs.observe(landing, {attributes:true, attributeFilter:['style']});
+    // Also start if already visible
+    if(landing.style.display !== 'none') start();
+  } else {
+    start();
+  }
+})();
 </script>
 </body>
 </html>
