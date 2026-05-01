@@ -1210,6 +1210,7 @@
       <div class="form-group"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••"></div>
       <div class="form-err" id="loginErr"></div>
       <button class="btn-submit" id="loginBtn" onclick="doLogin()">Sign In</button>
+      <div class="auth-switch" style="margin-top:10px;"><a onclick="showAuth('forgot')">Forgot password?</a></div>
       <div class="auth-switch">New here? <a onclick="showAuth('signup')">Create account</a></div>
     </div>
     <!-- Signup Form -->
@@ -1226,6 +1227,34 @@
       <div class="form-err" id="signupErr"></div>
       <button class="btn-submit" id="signupBtn" onclick="doSignup()">Create Account</button>
       <div class="auth-switch">Already have an account? <a onclick="showAuth('login')">Sign in</a></div>
+    </div>
+    <!-- Forgot Password: Email Entry -->
+    <div id="forgotForm" style="display:none">
+      <div class="modal-title">Reset Password</div>
+      <div class="modal-sub">Enter your registered email to receive a reset code</div>
+      <div class="form-group"><label>Email</label><input type="email" id="forgotEmail" placeholder="you@example.com"></div>
+      <div class="form-err" id="forgotErr"></div>
+      <button class="btn-submit" id="forgotBtn" onclick="doForgotPassword()">Send Reset Code</button>
+      <div class="auth-switch"><a onclick="showAuth('login')">← Back to Sign In</a></div>
+    </div>
+    <!-- Forgot Password: Code Verification -->
+    <div id="resetVerifyForm" style="display:none">
+      <div class="verify-icon">🔐</div>
+      <div class="modal-title" style="text-align:center">Enter Reset Code</div>
+      <div class="verify-hint">We sent a 6-digit code to <strong id="resetVerifyEmailDisplay"></strong>. Enter it below.</div>
+      <input class="verify-code-input" type="text" id="resetCodeInput" maxlength="6" placeholder="000000" oninput="this.value=this.value.replace(/[^0-9]/g,'')" onkeydown="if(event.key==='Enter')doVerifyResetCode()">
+      <div class="form-err" id="resetVerifyErr"></div>
+      <button class="btn-submit" id="resetVerifyBtn" onclick="doVerifyResetCode()">Verify Code</button>
+      <div class="verify-resend">Didn't get it? <a onclick="doResendResetCode()">Resend code</a></div>
+      <button class="verify-back" onclick="showAuth('forgot')">← Back</button>
+    </div>
+    <!-- Set New Password Form (shown after code verification) -->
+    <div id="resetPassForm" style="display:none">
+      <div class="verify-icon">🔒</div>
+      <div class="modal-title" style="text-align:center">Identity Verified</div>
+      <div class="modal-sub" style="text-align:center">Click below to receive a password reset link in your email.</div>
+      <div class="form-err" id="resetPassErr"></div>
+      <button class="btn-submit" id="resetPassBtn" onclick="doResetPassword()">Send Reset Link</button>
     </div>
     <!-- Email Verification Step -->
     <div id="verifyForm" style="display:none">
@@ -1245,23 +1274,27 @@
 <script>
   function showAuth(mode) {
     var modal = document.getElementById('authModal');
-    var loginForm = document.getElementById('loginForm');
-    var signupForm = document.getElementById('signupForm');
     if (!modal) return;
     modal.classList.add('active');
-    if (loginForm) loginForm.style.display = mode === 'login' ? 'block' : 'none';
-    if (signupForm) signupForm.style.display = mode === 'signup' ? 'block' : 'none';
+    // Hide every form first, then show only the requested one
+    ['loginForm','signupForm','forgotForm','resetVerifyForm','resetPassForm','verifyForm']
+      .forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display='none'; });
+    var target = {login:'loginForm',signup:'signupForm',forgot:'forgotForm',
+                  resetVerify:'resetVerifyForm',resetPass:'resetPassForm',verify:'verifyForm'}[mode];
+    if(target){ var el=document.getElementById(target); if(el) el.style.display='block'; }
   }
   function closeAuth() {
     var modal = document.getElementById('authModal');
     if (modal) { modal.classList.remove('active'); modal.style.display = ''; }
+    ['loginForm','signupForm','forgotForm','resetVerifyForm','resetPassForm','verifyForm']
+      .forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display='none'; });
   }
 </script>
 
 <!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, confirmPasswordReset } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getDatabase, ref, set, get, push, onValue, serverTimestamp, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -1292,10 +1325,24 @@ window.sendChat = sendChat;
 
 function showAuth(mode) {
   document.getElementById('authModal').classList.add('active');
-  document.getElementById('loginForm').style.display = mode==='login' ? 'block' : 'none';
-  document.getElementById('signupForm').style.display = mode==='signup' ? 'block' : 'none';
+  const forms = ['loginForm','signupForm','forgotForm','resetVerifyForm','resetPassForm','verifyForm'];
+  forms.forEach(id => { const el = document.getElementById(id); if(el) el.style.display='none'; });
+  const target = {
+    login:'loginForm', signup:'signupForm',
+    forgot:'forgotForm', resetVerify:'resetVerifyForm', resetPass:'resetPassForm',
+    verify:'verifyForm'
+  }[mode];
+  if(target) document.getElementById(target).style.display = 'block';
 }
-function closeAuth() { var m = document.getElementById('authModal'); if(m){ m.classList.remove('active'); m.style.display=''; } }
+function closeAuth() {
+  var m = document.getElementById('authModal');
+  if(m){ m.classList.remove('active'); m.style.display=''; }
+  // Hide ALL forms so none bleeds into the next modal open
+  ['loginForm','signupForm','forgotForm','resetVerifyForm','resetPassForm','verifyForm']
+    .forEach(id => { const el = document.getElementById(id); if(el) el.style.display='none'; });
+  // Clear reset state so stale code can't be reused
+  _pendingReset = null;
+}
 
 function showErr(id, msg) {
   const el = document.getElementById(id);
@@ -1457,6 +1504,107 @@ function cancelVerification() {
 window.doVerifyCode = doVerifyCode;
 window.doResendCode = doResendCode;
 window.cancelVerification = cancelVerification;
+
+// ── PASSWORD RESET ──
+
+let _pendingReset = null; // { email, code }
+
+async function doForgotPassword() {
+  const email = document.getElementById('forgotEmail').value.trim();
+  hideErr('forgotErr');
+  if (!email) { showErr('forgotErr', 'Email is required.'); return; }
+  const btn = document.getElementById('forgotBtn');
+  btn.disabled = true; btn.textContent = 'Checking email...';
+  // FIX 3: Verify email is registered before sending reset code.
+  // Query Firebase DB for a matching email in users node.
+  let emailRegistered = false;
+  try {
+    const snap = await get(ref(db, 'users'));
+    if (snap.exists()) {
+      snap.forEach(child => {
+        if (child.val().email === email) emailRegistered = true;
+      });
+    }
+  } catch(e) {
+    showErr('forgotErr', 'Could not verify email. Please try again.');
+    btn.disabled = false; btn.textContent = 'Send Reset Code';
+    return;
+  }
+  if (!emailRegistered) {
+    showErr('forgotErr', 'No account found with this email address.');
+    btn.disabled = false; btn.textContent = 'Send Reset Code';
+    return;
+  }
+  btn.textContent = 'Sending code...';
+  const code = generateCode();
+  try {
+    await sendVerificationEmail(email, email.split('@')[0], code);
+  } catch(e) {
+    showErr('forgotErr', 'Failed to send code. Check the email address and try again.');
+    btn.disabled = false; btn.textContent = 'Send Reset Code';
+    return;
+  }
+  _pendingReset = { email, code };
+  document.getElementById('resetVerifyEmailDisplay').textContent = email;
+  document.getElementById('resetCodeInput').value = '';
+  hideErr('resetVerifyErr');
+  showAuth('resetVerify');
+  btn.disabled = false; btn.textContent = 'Send Reset Code';
+}
+
+async function doVerifyResetCode() {
+  if (!_pendingReset) return;
+  const entered = document.getElementById('resetCodeInput').value.trim();
+  hideErr('resetVerifyErr');
+  if (entered.length !== 6) { showErr('resetVerifyErr', 'Please enter the 6-digit code.'); return; }
+  if (entered !== _pendingReset.code) { showErr('resetVerifyErr', 'Incorrect code. Please try again.'); return; }
+  _pendingReset.verified = true;
+  hideErr('resetPassErr');
+  showAuth('resetPass');
+}
+
+async function doResetPassword() {
+  if (!_pendingReset || !_pendingReset.verified) return;
+  hideErr('resetPassErr');
+  const btn = document.getElementById('resetPassBtn');
+  btn.disabled = true; btn.textContent = 'Sending...';
+  try {
+    await sendPasswordResetEmail(auth, _pendingReset.email);
+    _pendingReset = null;
+    const resetPassForm = document.getElementById('resetPassForm');
+    if (resetPassForm) {
+      resetPassForm.innerHTML = `
+        <div class="verify-icon">📧</div>
+        <div class="modal-title" style="text-align:center">Reset Email Sent</div>
+        <div class="verify-hint">Check your inbox or Spam Folder and click the reset link to set a new password.</div>
+        <button class="btn-submit" onclick="closeAuth()" style="margin-top:8px">OK</button>
+      `;
+    }
+  } catch(e) {
+    showErr('resetPassErr', e.message.replace('Firebase: ',''));
+    btn.disabled = false; btn.textContent = 'Set Password';
+  }
+}
+
+async function doResendResetCode() {
+  if (!_pendingReset) return;
+  const newCode = generateCode();
+  try {
+    await sendVerificationEmail(_pendingReset.email, _pendingReset.email.split('@')[0], newCode);
+    _pendingReset.code = newCode;
+    document.getElementById('resetCodeInput').value = '';
+    hideErr('resetVerifyErr');
+    showToast('New reset code sent!');
+  } catch(e) {
+    showErr('resetVerifyErr', 'Failed to resend code. Please try again.');
+  }
+}
+
+
+window.doForgotPassword = doForgotPassword;
+window.doVerifyResetCode = doVerifyResetCode;
+window.doResetPassword = doResetPassword;
+window.doResendResetCode = doResendResetCode;
 
 async function doLogout() {
   await signOut(auth);
