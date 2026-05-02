@@ -1,76 +1,18 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title id="seo-meta-title">Trade With Afrasiab — Personal Trading Journal &amp; Market Analysis</title>
-<meta name="description" id="seo-meta-desc" content="">
-<meta name="keywords" id="seo-meta-keywords" content="">
-<meta name="robots" id="seo-meta-robots" content="index, follow">
+<title>Trade With Afrasiab — Personal Trading Journal &amp; Market Analysis</title>
+<meta name="description" content="Personal trading journal and educational market analysis by Afrasiab. Not financial advice. For educational purposes only.">
+<meta name="robots" content="index, follow">
 <meta property="og:type" content="website">
-<meta property="og:title" id="seo-og-title" content="">
-<meta property="og:description" id="seo-og-desc" content="">
-<meta property="og:image" id="seo-og-image" content="">
-<meta property="og:url" id="seo-og-url" content="">
-<meta name="twitter:card" id="seo-twitter-card" content="summary_large_image">
-<meta name="twitter:title" id="seo-twitter-title" content="">
-<meta name="twitter:description" id="seo-twitter-desc" content="">
-<meta name="twitter:image" id="seo-twitter-image" content="">
-<link rel="canonical" id="seo-canonical" href="">
+<meta property="og:title" content="Trade With Afrasiab — Personal Trading Journal &amp; Market Analysis">
+<meta property="og:description" content="Personal trading journal and educational market analysis by Afrasiab. Not financial advice. For educational purposes only.">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<script>
-// Apply cached SEO meta tags IMMEDIATELY before Firebase loads — ensures crawlers/social scrapers see real values
-(function(){
-  try {
-    var seo = JSON.parse(localStorage.getItem('seoCache_home') || 'null');
-    if (seo) {
-      var setMeta = function(id, val) {
-        if (!val) return;
-        var el = document.getElementById(id);
-        if (el) el.setAttribute('content', val);
-      };
-      var titleEl = document.getElementById('seo-meta-title');
-      if (titleEl && seo.title) titleEl.textContent = seo.title;
-      if (seo.title) document.title = seo.title;
-      setMeta('seo-meta-desc',     seo.description);
-      setMeta('seo-meta-keywords', seo.keywords);
-      setMeta('seo-meta-robots',   seo.robots || 'index, follow');
-      setMeta('seo-og-title',      seo.ogTitle || seo.title || '');
-      setMeta('seo-og-desc',       seo.ogDescription || seo.description || '');
-      setMeta('seo-og-image',      seo.ogImage || '');
-      setMeta('seo-og-url',        seo.canonical || '');
-      setMeta('seo-twitter-card',  seo.twitterCard || 'summary_large_image');
-      setMeta('seo-twitter-title', seo.ogTitle || seo.title || '');
-      setMeta('seo-twitter-desc',  seo.ogDescription || seo.description || '');
-      setMeta('seo-twitter-image', seo.ogImage || '');
-      var canon = document.getElementById('seo-canonical');
-      if (canon && seo.canonical) canon.setAttribute('href', seo.canonical);
-    }
-  } catch(e) {}
-})();
-</script>
-<script>
-// Apply cached logo IMMEDIATELY before Firebase loads — eliminates refresh flicker
-(function(){
-  try {
-    const cached = localStorage.getItem('siteLogoDataUrl');
-    const cachedSize = localStorage.getItem('siteLogoSize');
-    if (cached) {
-      // Inject a <style> that hides the default icon before any paint
-      var s = document.createElement('style');
-      s.textContent = '#logoIconDefault{display:none!important}#logoImgCustom{display:inline-block!important;height:'+(cachedSize||'36')+'px;width:auto;}';
-      document.head.appendChild(s);
-      document.addEventListener('DOMContentLoaded', function() {
-        var img = document.getElementById('logoImgCustom');
-        var def = document.getElementById('logoIconDefault');
-        if (img) { img.src = cached; img.style.display = 'inline-block'; img.style.height = (cachedSize||'36')+'px'; }
-        if (def) def.style.display = 'none';
-      });
-    }
-  } catch(e) {}
-})();
-</script>
+
 <style>
   :root {
     --bg: #080c10;
@@ -1212,7 +1154,7 @@
 <!-- CUSTOM FOOTER -->
 <div id="customFooter">
   <div id="disclaimerBanner" style="margin-bottom:14px;padding:12px 18px;background:rgba(255,71,87,.06);border:1px solid rgba(255,71,87,.18);border-radius:10px;font-size:12px;color:var(--text3);line-height:1.7;text-align:center;max-width:860px;margin-left:auto;margin-right:auto;margin-bottom:14px;">
-    ⚠️ <strong style="color:var(--text2)">Disclaimer:</strong> I am not a SECP registered investment advisor. All data, charts, and stocks shared on this website are solely my personal trading activity and educational analysis. This does not constitute financial advice of any kind. Stock market investment is subject to significant risk of loss. Past performance does not predict future results. Always conduct your own research or consult a SECP registered professional before investing.
+    ⚠️ <strong style="color:var(--text2)">SECP Disclaimer:</strong> I am not a SECP registered investment advisor. All data, charts, and stocks shared on this website are solely my personal trading activity and educational analysis. This does not constitute financial advice of any kind. Stock market investment is subject to significant risk of loss. Past performance does not predict future results. Always conduct your own research or consult a SECP registered professional before investing.
   </div>
   <div id="footerContent">© 2025 Trade With Afrasiab — All Rights Reserved</div>
   <div id="footerContactSocial" style="margin-top:14px;display:none;flex-wrap:wrap;justify-content:center;align-items:center;gap:12px;font-size:12px;color:var(--text3);">
@@ -1710,7 +1652,6 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById('consentModal').classList.remove('active');
     loadPublicStats();
     listenBlogPosts(false);
-    applySeoPage('home');
   }
 });
 
@@ -1762,7 +1703,6 @@ async function doConsentAgree() {
   document.getElementById('landingPage').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
   initDashboard();
-  applySeoPage('dashboard');
 
   // ── PRESENCE TRACKING ──
   const presenceRef = ref(db, `users/${currentUser.uid}`);
@@ -1793,42 +1733,6 @@ onValue(ref(db, 'tickerSpeed'), (snap) => {
   const track = document.querySelector('.ticker-track');
   if (track) track.style.animationDuration = speed + 's';
 });
-
-// ── SEO META TAGS ──
-let _seoUnsubscribe = null;
-function applySeoPage(page) {
-  // Detach previous listener to avoid stacking
-  if (_seoUnsubscribe) { _seoUnsubscribe(); _seoUnsubscribe = null; }
-  const seoRef = ref(db, `seo/${page}`);
-  _seoUnsubscribe = onValue(seoRef, (snap) => {
-    const d = snap.exists() ? snap.val() : {};
-    // Set <title>
-    const titleVal = d.title || 'Trade With Afrasiab — Personal Trading Journal & Market Analysis';
-    document.title = titleVal;
-    const titleEl = document.getElementById('seo-meta-title');
-    if (titleEl) titleEl.textContent = titleVal;
-    // Helper: set content attribute on meta by id
-    const mc = (id, val) => { if (!val) return; const el = document.getElementById(id); if (el) el.setAttribute('content', val); };
-    mc('seo-meta-desc',     d.description);
-    mc('seo-meta-keywords', d.keywords);
-    mc('seo-meta-robots',   d.robots || 'index, follow');
-    mc('seo-og-title',      d.ogTitle || d.title || '');
-    mc('seo-og-desc',       d.ogDescription || d.description || '');
-    mc('seo-og-image',      d.ogImage || '');
-    mc('seo-og-url',        d.canonical || '');
-    mc('seo-twitter-card',  d.twitterCard || 'summary_large_image');
-    mc('seo-twitter-title', d.ogTitle || d.title || '');
-    mc('seo-twitter-desc',  d.ogDescription || d.description || '');
-    mc('seo-twitter-image', d.ogImage || '');
-    // Canonical link tag uses href not content
-    const canon = document.getElementById('seo-canonical');
-    if (canon && d.canonical) canon.setAttribute('href', d.canonical);
-    // Cache SEO data to localStorage so meta tags are pre-populated on next load (for crawlers/social scrapers)
-    try { if (snap.exists()) localStorage.setItem(`seoCache_${page}`, JSON.stringify(d)); } catch(e) {}
-  });
-}
-// Load home SEO on start
-applySeoPage('home');
 
 // ── UNDER WORKING ──
 onValue(ref(db, 'siteContent/underWorking'), (snap) => {
@@ -1899,13 +1803,9 @@ onValue(ref(db, 'siteContent'), (snap) => {
   const logoUrl = data.logo || null;
   const logoSize = data.logoSize || 36;
   if (logoUrl) {
-    try { localStorage.setItem('siteLogoDataUrl', logoUrl); } catch(e) {}
-    try { localStorage.setItem('siteLogoSize', String(logoSize)); } catch(e) {}
     if (logoImg) { logoImg.src = logoUrl; logoImg.style.display = 'inline-block'; logoImg.style.height = logoSize + 'px'; }
     if (logoDefault) logoDefault.style.display = 'none';
   } else {
-    try { localStorage.removeItem('siteLogoDataUrl'); } catch(e) {}
-    try { localStorage.removeItem('siteLogoSize'); } catch(e) {}
     if (logoImg) { logoImg.src = ''; logoImg.style.display = 'none'; logoImg.style.height = ''; }
     if (logoDefault) logoDefault.style.display = 'flex';
   }
@@ -1953,8 +1853,6 @@ onValue(ref(db, 'landingContent'), (snap) => {
     const banner = document.getElementById('disclaimerBanner');
     if (banner) banner.innerHTML = d.disclaimerBanner;
   }
-  // Page title
-  if (d.pageTitle) document.title = d.pageTitle;
 });
 
 // ── PUBLIC STATS (landing) — removed per compliance: no win rate or pick count displayed ──
