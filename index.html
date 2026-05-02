@@ -718,6 +718,19 @@
 </style>
 <body>
 
+<!-- MAINTENANCE OVERLAY -->
+<div id="underWorkingOverlay" style="display:none;position:fixed;inset:0;background:#080c10;z-index:99999;align-items:center;justify-content:center;flex-direction:column;font-family:'DM Sans',sans-serif;">
+  <div style="text-align:center;padding:40px 20px;max-width:480px;">
+    <div style="font-size:56px;margin-bottom:24px;">🔧</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,8vw,64px);letter-spacing:.05em;color:#e8edf3;line-height:1;margin-bottom:16px;">WEBSITE UNDER <span style="color:#f0b429;">WORKING</span></div>
+    <div style="font-size:16px;color:#8ba3bc;line-height:1.6;margin-bottom:32px;">We're currently making improvements to the platform. We'll be back soon!</div>
+    <div style="display:inline-flex;align-items:center;gap:10px;background:rgba(240,180,41,.08);border:1px solid rgba(240,180,41,.25);border-radius:20px;padding:10px 22px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#f0b429;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#f0b429;display:inline-block;animation:pulse 2s infinite;"></span>
+      Coming Back Soon
+    </div>
+  </div>
+</div>
+
 <!-- TICKER -->
 <div id="tickerBar">
   <div class="ticker-track" id="tickerInner">
@@ -1295,7 +1308,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, confirmPasswordReset } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getDatabase, ref, set, get, push, onValue, serverTimestamp, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, set, get, push, onValue, serverTimestamp, update, remove, increment, onDisconnect } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBNxZNUzXqNBPRiWFSiuUifkhWk1qQWwnI",
@@ -1310,6 +1323,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
+
+// ── VISITOR TRACKING ──
+(async () => {
+  try {
+    await update(ref(db, 'analytics'), { totalVisitors: increment(1) });
+  } catch(e) {}
+})();
 
 let currentUser = null;
 let currentUserData = null;
@@ -1607,6 +1627,9 @@ window.doResetPassword = doResetPassword;
 window.doResendResetCode = doResendResetCode;
 
 async function doLogout() {
+  if (currentUser) {
+    try { await update(ref(db, `users/${currentUser.uid}`), { onlineStatus: 'offline' }); } catch(e) {}
+  }
   await signOut(auth);
   showToast('Logged out successfully', 'error');
 }
@@ -1693,6 +1716,14 @@ async function doConsentAgree() {
   document.getElementById('landingPage').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
   initDashboard();
+
+  // ── PRESENCE TRACKING ──
+  const presenceRef = ref(db, `users/${currentUser.uid}`);
+  try {
+    await update(presenceRef, { onlineStatus: 'online', lastVisit: Date.now() });
+    onDisconnect(presenceRef).update({ onlineStatus: 'offline' });
+  } catch(e) {}
+
   showToast('Welcome back!');
 
   btn.disabled = false;
@@ -1714,6 +1745,14 @@ onValue(ref(db, 'tickerSpeed'), (snap) => {
   const speed = snap.exists() && snap.val() ? snap.val() : 32;
   const track = document.querySelector('.ticker-track');
   if (track) track.style.animationDuration = speed + 's';
+});
+
+// ── UNDER WORKING ──
+onValue(ref(db, 'siteContent/underWorking'), (snap) => {
+  const overlay = document.getElementById('underWorkingOverlay');
+  if (!overlay) return;
+  const enabled = snap.exists() && snap.val() === true;
+  overlay.style.display = enabled ? 'flex' : 'none';
 });
 
 // ── CUSTOM HEADER/FOOTER ──
