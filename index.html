@@ -20,6 +20,37 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
+// Apply cached SEO meta tags IMMEDIATELY before Firebase loads — ensures crawlers/social scrapers see real values
+(function(){
+  try {
+    var seo = JSON.parse(localStorage.getItem('seoCache_home') || 'null');
+    if (seo) {
+      var setMeta = function(id, val) {
+        if (!val) return;
+        var el = document.getElementById(id);
+        if (el) el.setAttribute('content', val);
+      };
+      var titleEl = document.getElementById('seo-meta-title');
+      if (titleEl && seo.title) titleEl.textContent = seo.title;
+      if (seo.title) document.title = seo.title;
+      setMeta('seo-meta-desc',     seo.description);
+      setMeta('seo-meta-keywords', seo.keywords);
+      setMeta('seo-meta-robots',   seo.robots || 'index, follow');
+      setMeta('seo-og-title',      seo.ogTitle || seo.title || '');
+      setMeta('seo-og-desc',       seo.ogDescription || seo.description || '');
+      setMeta('seo-og-image',      seo.ogImage || '');
+      setMeta('seo-og-url',        seo.canonical || '');
+      setMeta('seo-twitter-card',  seo.twitterCard || 'summary_large_image');
+      setMeta('seo-twitter-title', seo.ogTitle || seo.title || '');
+      setMeta('seo-twitter-desc',  seo.ogDescription || seo.description || '');
+      setMeta('seo-twitter-image', seo.ogImage || '');
+      var canon = document.getElementById('seo-canonical');
+      if (canon && seo.canonical) canon.setAttribute('href', seo.canonical);
+    }
+  } catch(e) {}
+})();
+</script>
+<script>
 // Apply cached logo IMMEDIATELY before Firebase loads — eliminates refresh flicker
 (function(){
   try {
@@ -1781,27 +1812,39 @@ onValue(ref(db, 'tickerSpeed'), (snap) => {
 });
 
 // ── SEO META TAGS ──
+let _seoUnsubscribe = null;
 function applySeoPage(page) {
-  onValue(ref(db, `seo/${page}`), (snap) => {
+  // Detach previous listener to avoid stacking
+  if (_seoUnsubscribe) { _seoUnsubscribe(); _seoUnsubscribe = null; }
+  const seoRef = ref(db, `seo/${page}`);
+  _seoUnsubscribe = onValue(seoRef, (snap) => {
     const d = snap.exists() ? snap.val() : {};
-    const sm = (id, val) => { const el = document.getElementById(id); if (el && val) el.setAttribute(val.startsWith('http') && id==='seo-canonical' ? 'href' : 'content', val); };
-    if (d.title) { document.title = d.title; const t = document.getElementById('seo-meta-title'); if(t) t.textContent = d.title; }
-    sm('seo-meta-desc',     d.description);
-    sm('seo-meta-keywords', d.keywords);
-    sm('seo-meta-robots',   d.robots || 'index, follow');
-    sm('seo-og-title',      d.ogTitle || d.title);
-    sm('seo-og-desc',       d.ogDescription || d.description);
-    sm('seo-og-image',      d.ogImage);
-    sm('seo-og-url',        d.canonical);
-    sm('seo-twitter-card',  d.twitterCard || 'summary_large_image');
-    sm('seo-twitter-title', d.ogTitle || d.title);
-    sm('seo-twitter-desc',  d.ogDescription || d.description);
-    sm('seo-twitter-image', d.ogImage);
+    // Set <title>
+    const titleVal = d.title || 'Trade With Afrasiab — Premium Trading Signals';
+    document.title = titleVal;
+    const titleEl = document.getElementById('seo-meta-title');
+    if (titleEl) titleEl.textContent = titleVal;
+    // Helper: set content attribute on meta by id
+    const mc = (id, val) => { if (!val) return; const el = document.getElementById(id); if (el) el.setAttribute('content', val); };
+    mc('seo-meta-desc',     d.description);
+    mc('seo-meta-keywords', d.keywords);
+    mc('seo-meta-robots',   d.robots || 'index, follow');
+    mc('seo-og-title',      d.ogTitle || d.title || '');
+    mc('seo-og-desc',       d.ogDescription || d.description || '');
+    mc('seo-og-image',      d.ogImage || '');
+    mc('seo-og-url',        d.canonical || '');
+    mc('seo-twitter-card',  d.twitterCard || 'summary_large_image');
+    mc('seo-twitter-title', d.ogTitle || d.title || '');
+    mc('seo-twitter-desc',  d.ogDescription || d.description || '');
+    mc('seo-twitter-image', d.ogImage || '');
+    // Canonical link tag uses href not content
     const canon = document.getElementById('seo-canonical');
     if (canon && d.canonical) canon.setAttribute('href', d.canonical);
+    // Cache SEO data to localStorage so meta tags are pre-populated on next load (for crawlers/social scrapers)
+    try { if (snap.exists()) localStorage.setItem(`seoCache_${page}`, JSON.stringify(d)); } catch(e) {}
   });
 }
-// Always load 'home' SEO on start; switch to 'dashboard' when user logs in
+// Load home SEO on start
 applySeoPage('home');
 
 // ── UNDER WORKING ──
