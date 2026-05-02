@@ -1327,7 +1327,25 @@ const db = getDatabase(app);
 // ── VISITOR TRACKING ──
 (async () => {
   try {
-    await update(ref(db, 'analytics'), { totalVisitors: increment(1) });
+    const now = new Date();
+    const YYYY = now.getFullYear();
+    const MM = String(now.getMonth()+1).padStart(2,'0');
+    const DD = String(now.getDate()).padStart(2,'0');
+    // ISO week number
+    const d = new Date(Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()));
+    d.setUTCDate(d.getUTCDate()+4-(d.getUTCDay()||7));
+    const weekNo = String(Math.ceil((((d-new Date(Date.UTC(d.getUTCFullYear(),0,1)))/86400000)+1)/7)).padStart(2,'0');
+    const dayKey   = `${YYYY}-${MM}-${DD}`;
+    const weekKey  = `${YYYY}-W${weekNo}`;
+    const monthKey = `${YYYY}-${MM}`;
+    const yearKey  = `${YYYY}`;
+    await update(ref(db,'analytics'), {
+      totalVisitors:              increment(1),
+      [`daily/${dayKey}`]:        increment(1),
+      [`weekly/${weekKey}`]:      increment(1),
+      [`monthly/${monthKey}`]:    increment(1),
+      [`yearly/${yearKey}`]:      increment(1)
+    });
   } catch(e) {}
 })();
 
