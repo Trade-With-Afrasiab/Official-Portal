@@ -3,7 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trade With Afrasiab — Premium Trading Signals</title>
+<title id="seo-meta-title">Trade With Afrasiab — Premium Trading Signals</title>
+<meta name="description" id="seo-meta-desc" content="">
+<meta name="keywords" id="seo-meta-keywords" content="">
+<meta name="robots" id="seo-meta-robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:title" id="seo-og-title" content="">
+<meta property="og:description" id="seo-og-desc" content="">
+<meta property="og:image" id="seo-og-image" content="">
+<meta property="og:url" id="seo-og-url" content="">
+<meta name="twitter:card" id="seo-twitter-card" content="summary_large_image">
+<meta name="twitter:title" id="seo-twitter-title" content="">
+<meta name="twitter:description" id="seo-twitter-desc" content="">
+<meta name="twitter:image" id="seo-twitter-image" content="">
+<link rel="canonical" id="seo-canonical" href="">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
@@ -1683,6 +1696,7 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById('consentModal').classList.remove('active');
     loadPublicStats();
     listenBlogPosts(false);
+    applySeoPage('home');
   }
 });
 
@@ -1734,6 +1748,7 @@ async function doConsentAgree() {
   document.getElementById('landingPage').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
   initDashboard();
+  applySeoPage('dashboard');
 
   // ── PRESENCE TRACKING ──
   const presenceRef = ref(db, `users/${currentUser.uid}`);
@@ -1764,6 +1779,30 @@ onValue(ref(db, 'tickerSpeed'), (snap) => {
   const track = document.querySelector('.ticker-track');
   if (track) track.style.animationDuration = speed + 's';
 });
+
+// ── SEO META TAGS ──
+function applySeoPage(page) {
+  onValue(ref(db, `seo/${page}`), (snap) => {
+    const d = snap.exists() ? snap.val() : {};
+    const sm = (id, val) => { const el = document.getElementById(id); if (el && val) el.setAttribute(val.startsWith('http') && id==='seo-canonical' ? 'href' : 'content', val); };
+    if (d.title) { document.title = d.title; const t = document.getElementById('seo-meta-title'); if(t) t.textContent = d.title; }
+    sm('seo-meta-desc',     d.description);
+    sm('seo-meta-keywords', d.keywords);
+    sm('seo-meta-robots',   d.robots || 'index, follow');
+    sm('seo-og-title',      d.ogTitle || d.title);
+    sm('seo-og-desc',       d.ogDescription || d.description);
+    sm('seo-og-image',      d.ogImage);
+    sm('seo-og-url',        d.canonical);
+    sm('seo-twitter-card',  d.twitterCard || 'summary_large_image');
+    sm('seo-twitter-title', d.ogTitle || d.title);
+    sm('seo-twitter-desc',  d.ogDescription || d.description);
+    sm('seo-twitter-image', d.ogImage);
+    const canon = document.getElementById('seo-canonical');
+    if (canon && d.canonical) canon.setAttribute('href', d.canonical);
+  });
+}
+// Always load 'home' SEO on start; switch to 'dashboard' when user logs in
+applySeoPage('home');
 
 // ── UNDER WORKING ──
 onValue(ref(db, 'siteContent/underWorking'), (snap) => {
